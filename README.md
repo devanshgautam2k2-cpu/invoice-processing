@@ -126,7 +126,7 @@ Built deliberately small; each item has a path to production.
 | Currency conversion, full tax engine | INR only; implied-rate sanity check | Rate service, HSN-level tax rules |
 | Clustering "Other" review reasons | Stored as free text | LLM groups them into candidate new reason codes |
 | Vendor channel for corrected invoices | Corrected resend with the same number is detected and processed | Vendor portal to withdraw or replace an invoice |
-| Learning from reviewer decisions | Every decision and note is recorded | A confirmed name variant becomes a vendor alias; a verified bank change updates the vendor master |
+| Learning from reviewer decisions | Every decision and note is recorded | **Facts:** a reviewer can confirm a name variant as a vendor alias (explicit, one alias, logged, reversible); a bank change needs maker-checker. **Patterns:** at least 7 matching decisions for the same vendor or PO and reason produce a *suggested* rule change for a finance lead to accept or decline, never an automatic one |
 | Auth / roles | Single reviewer name field | SSO, maker-checker for large amounts |
 
 Test data (POs, vendors, invoices) is self-created as the brief allows. All names, GSTINs and bank details are fictional.

@@ -475,7 +475,10 @@ Noted as deliberate scope choices, to reference in the live pitch.
 - Vendor notification of corrected invoices is out of scope ("what I'd build next").
 - Test data (PO data set and invoice PDFs) is self-created, as the brief allows.
 
-**Next versions:** reviewer decisions feed back into the master data: a confirmed name variant (R-A4) becomes a vendor alias, and a verified bank change updates the vendor master, so the same invoice is not flagged again. Today each decision is recorded but not learned from.
+**Next versions: learning from reviewer decisions.** Two kinds, handled differently:
+
+- **Confirmed facts** (one decision is enough, never automatic): when a reviewer approves an H6 invoice they can tick "add this name as an alias for V-002". It adds one alias to one vendor, is logged with who and when, and can be removed. A changed bank account is the exception: a fraud signal, so updating the vendor master needs a second person's approval (maker-checker).
+- **Patterns in decisions** (needs volume): when reviewers make the same decision for the same vendor or PO with the same reason **at least 7 times** (e.g. approving Vendor X's H1 invoices at 3–4% over), the system **suggests** a rule change ("raise Vendor X's approve limit to 4%?") for a finance lead to accept or decline. Never applied automatically. Below 7, nothing is suggested: one or two approvals may be one-off agreements.
 
 GST matching. The invoice's GSTIN will be matched against our own list of GST numbers held for each vendor, not just checked for presence.
 
