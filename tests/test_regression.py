@@ -10,7 +10,10 @@ Two runs, mirroring EXPECTED.md:
      approve, and the POs must end in the state table's statuses.
   B. Core set + extended set in one go (03a and 04 left awaiting review): every
      file's outcome and reason code.
-  C. Unseen set alone on a fresh database.
+     Then the reviewer approves e12 and confirms its name as an alias: e18 (same
+     name, waiting behind it) must rerun and approve on the learned alias.
+  C. e12 + e18 again, approved WITHOUT the alias tick: e18 must still get H6.
+  D. Unseen set alone on a fresh database.
 """
 
 import os
@@ -120,7 +123,22 @@ def main() -> int:
         r = results.get(f.name, {})
         rep.check(f.name, (r.get("outcome"), r.get("reason_code")), expected.get(f.name))
 
-    print("\nRun C: unseen set on a fresh database")
+    e12 = "e12_H6_sri_ganesh_name_variant.pdf"
+    reruns = pipeline.review(invoice_id(e12), "approve", "R-A4", "Regression test: same company", add_alias=True)
+    r = next((x for x in reruns if x["internal_id"] == f"INT-{invoice_id('e18_learned_alias_followup.pdf'):04d}"), {})
+    rep.check("e18 reruns and approves on the learned alias", (r.get("outcome"), r.get("reason_code")), ("approve", "A1"))
+    with db.tx() as c:
+        aliases = [a["alias"] for a in db.vendor(c, "V-002")["learned_aliases"]]
+    rep.check("alias recorded for V-002", aliases, ["Sri Ganesh Office Solution"])
+
+    print("\nRun C: e12 + e18 approved without the alias tick")
+    extended_dir = TEST_DIR / "extended"
+    run([extended_dir / e12, extended_dir / "e18_learned_alias_followup.pdf"])
+    reruns = pipeline.review(invoice_id(e12), "approve", "R-A4", "Regression test: no alias")
+    r = reruns[0] if reruns else {}
+    rep.check("without the tick e18 still gets H6", (r.get("outcome"), r.get("reason_code")), ("human_review", "H6"))
+
+    print("\nRun D: unseen set on a fresh database")
     results = run(unseen)
     for f in unseen:
         r = results.get(f.name, {})

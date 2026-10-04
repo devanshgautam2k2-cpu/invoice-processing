@@ -22,12 +22,12 @@ The app has three pages:
 | Page | What it shows |
 |---|---|
 | **Run invoices** | Upload PDFs or pick test files. A live view shows each of the nine stages turning green, amber or red as it runs, with every check logged underneath. |
-| **Human review** | POs on hold with an "on hold since" timer and how long each waiting invoice has waited, the waiting queue, and the review screen: the document beside what the AI read (with the exact text it read each field from), two separate indicators (*Reading confidence* vs *Match vs PO*), the findings, and approve or reject with a reason code and **required notes**. On approval the reviewer confirms which PO lines and quantities the invoice bills (prefilled with the system's matches, or chosen by hand when it could not match), and sees whether the PO will become partially or fully invoiced. A decision releases the hold and reruns waiting invoices immediately. |
+| **Human review** | POs on hold with an "on hold since" timer and how long each waiting invoice has waited, the waiting queue, and the review screen: the document beside what the AI read (with the exact text it read each field from), two separate indicators (*Reading confidence* vs *Match vs PO*), the findings, and approve or reject with a reason code and **required notes**. On approval the reviewer confirms which PO lines and quantities the invoice bills (prefilled with the system's matches, or chosen by hand when it could not match), and sees whether the PO will become partially or fully invoiced. On a close-name (H6) invoice the reviewer can tick **"confirm as an alias"**: later invoices under that name pass the vendor check. Learned aliases are listed with who added them and when, and can be removed. A decision releases the hold and reruns waiting invoices immediately. |
 | **Dashboard** | Invoices processed, auto-approval and exception rates, value approved, overbilling and duplicates caught, status and reason breakdowns, filterable history with a drill-down into any invoice's decision and audit trail, and PO billing progress. |
 
 Unseen invoices (`test_invoices/unseen/`, new layouts, a phone photo, a two-page invoice, a quotation) are in the test picker too; see `EXPECTED.md`.
 
-`python reset_demo.py --run` resets and processes the seven core test invoices from the command line; add `--extended` for the 17 edge-case invoices (one per remaining reason code; see `test_invoices/EXPECTED.md`). In the app, use **Run core demo set**, then **Run edge-case set**.
+`python reset_demo.py --run` resets and processes the seven core test invoices from the command line; add `--extended` for the 18 edge-case invoices (one per remaining reason code, plus the learned-alias follow-up; see `test_invoices/EXPECTED.md`). In the app, use **Run core demo set**, then **Run edge-case set**.
 
 ### Regression test
 
@@ -35,7 +35,7 @@ Unseen invoices (`test_invoices/unseen/`, new layouts, a phone photo, a two-page
 python tests/test_regression.py
 ```
 
-Runs all 24 test invoices on a throwaway database, offline (cached AI results only, no API spend, about 2 seconds), and checks every outcome and reason code against `test_invoices/EXPECTED.md`. It also checks the reviewer flow (approving 03a reruns 03b) and the final PO statuses. 39 checks; exit code 0 means all pass. Run it after any rule change.
+Runs all 31 test invoices (core, edge-case and unseen) on a throwaway database, offline (cached AI results only, no API spend, a few seconds), and checks every outcome and reason code against `test_invoices/EXPECTED.md`. It also checks the reviewer flow (approving 03a reruns 03b), the final PO statuses, and alias learning (with the tick e18 is approved on the learned alias; without it, H6 again). 49 checks; exit code 0 means all pass. Run it after any rule change.
 
 ### Demo order (5 minutes)
 
@@ -47,7 +47,8 @@ Runs all 24 test invoices on a throwaway database, offline (cached AI results on
    - 05: exact duplicate, sent back (S2)
 2. **Human review → INT-0004 → Approve (R-A2)**. PO-1003 is released, and 03b reruns live and is approved.
 3. **INT-0006 (scan)**: Reading *Low* and Match vs PO *Failed* side by side. Scans never go straight back to a vendor: in testing Haiku misread one character of the GSTIN on this scan, which is why scans are now read by Sonnet 5.5 and always checked by a person.
-4. **Dashboard**: open any row for its full audit trail.
+4. **Run edge-case set**, then **Human review → INT-0019 (H6, "Sri Ganesh Office Solution")**: tick "confirm as an alias" and approve. INT-0025, the same name waiting behind it, reruns and passes the vendor check on the learned alias.
+5. **Dashboard**: open any row for its full audit trail.
 
 ## How an invoice is processed
 
@@ -96,7 +97,7 @@ engine/
   pdf_reader.py         file hash, text-vs-scan detection, page render
 data/                   config.json (every threshold) · vendors.json · pos_seed.json · llm_cache/
 scripts/generate_invoices.py   builds the test PDFs (3 layouts, reproducible bytes)
-test_invoices/          7 core test PDFs + EXPECTED.md; extended/ holds 17 edge-case PDFs
+test_invoices/          7 core test PDFs + EXPECTED.md; extended/ holds 18 edge-case PDFs; unseen/ holds 6
 reset_demo.py           restore a clean demo state (optionally run the test set)
 tests/test_regression.py   all 24 invoices vs EXPECTED.md, offline
 ```
@@ -126,7 +127,7 @@ Built deliberately small; each item has a path to production.
 | Currency conversion, full tax engine | INR only; implied-rate sanity check | Rate service, HSN-level tax rules |
 | Clustering "Other" review reasons | Stored as free text | LLM groups them into candidate new reason codes |
 | Vendor channel for corrected invoices | Corrected resend with the same number is detected and processed | Vendor portal to withdraw or replace an invoice |
-| Learning from reviewer decisions | Every decision and note is recorded | **Facts:** a reviewer can confirm a name variant as a vendor alias (explicit, one alias, logged, reversible); a bank change needs maker-checker. **Patterns:** at least 7 matching decisions for the same vendor or PO and reason produce a *suggested* rule change for a finance lead to accept or decline, never an automatic one |
+| Learning from reviewer decisions | **Built:** a reviewer can confirm a close vendor name as an alias (explicit tick, one alias, logged, removable) | Bank-detail changes with maker-checker. **Patterns:** at least 7 matching decisions for the same vendor or PO and reason produce a *suggested* rule change for a finance lead to accept or decline, never an automatic one |
 | Auth / roles | Single reviewer name field | SSO, maker-checker for large amounts |
 
 Test data (POs, vendors, invoices) is self-created as the brief allows. All names, GSTINs and bank details are fictional.

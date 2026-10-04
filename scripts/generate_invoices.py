@@ -446,6 +446,9 @@ EXTENDED = [
         Line(DELL_24, "8528", 8, 16900)]),
     Invoice("e16_H11_blue_river_wrong_tax_rate.pdf", "V-005", "BRL/PNQ/2026/0322", "29 Sep 2026", "PO-1012", "modern", [
         Line("Courier - intra-city consignments, Pune", "9968", 20, 600)], tax_rate=20),
+    Invoice("e18_learned_alias_followup.pdf", "V-002", "SGOS/0970", "01/10/2026", "PO-1009", "classic", [
+        Line("Cello Butterflow Ball Pen, box of 25", "9608", 60, 250)],
+        vendor_overrides={"legal_name": "Sri Ganesh Office Solution"}),
     Invoice("e17_H12_blue_river_po_stamped.pdf", "V-005", "BRL/PNQ/2026/0317", "30 Sep 2026", "PO-1005", "modern", [
         Line("Freight Pune to Mumbai, full truck load (per trip)", "9965", 6, 9500)], po_stamp=True),
 ]

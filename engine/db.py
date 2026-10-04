@@ -85,6 +85,17 @@ CREATE TABLE IF NOT EXISTS allocations (   -- invoice qty applied to PO lines on
     applied_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS vendor_aliases (  -- names a reviewer confirmed for a vendor
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    vendor_id TEXT NOT NULL REFERENCES vendors(vendor_id),
+    alias TEXT NOT NULL,
+    added_by TEXT NOT NULL,
+    added_at TEXT NOT NULL,
+    source_invoice_id INTEGER REFERENCES invoices(id),
+    removed_by TEXT,
+    removed_at TEXT
+);
+
 CREATE TABLE IF NOT EXISTS audit_events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     invoice_id INTEGER REFERENCES invoices(id),
@@ -178,7 +189,25 @@ def vendor(c, vendor_id: str) -> dict | None:
         return None
     d = dict(r)
     d["aliases"] = json.loads(d["aliases"])
+    d["learned_aliases"] = [dict(a) for a in c.execute(
+        "SELECT * FROM vendor_aliases WHERE vendor_id=? AND removed_at IS NULL ORDER BY id", (vendor_id,))]
+    d["aliases"] += [a["alias"] for a in d["learned_aliases"]]
     return d
+
+
+def add_alias(c, vendor_id: str, alias: str, added_by: str, invoice_id: int | None) -> int:
+    existing = c.execute("SELECT id FROM vendor_aliases WHERE vendor_id=? AND alias=? AND removed_at IS NULL",
+                         (vendor_id, alias)).fetchone()
+    if existing:
+        return existing["id"]
+    cur = c.execute("INSERT INTO vendor_aliases (vendor_id, alias, added_by, added_at, source_invoice_id) VALUES (?,?,?,?,?)",
+                    (vendor_id, alias, added_by, now(), invoice_id))
+    return cur.lastrowid
+
+
+def remove_alias(c, alias_id: int, removed_by: str):
+    c.execute("UPDATE vendor_aliases SET removed_by=?, removed_at=? WHERE id=? AND removed_at IS NULL",
+              (removed_by, now(), alias_id))
 
 
 def po(c, po_id: str) -> dict | None:

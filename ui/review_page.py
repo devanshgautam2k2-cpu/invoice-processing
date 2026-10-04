@@ -49,6 +49,15 @@ def decision_form(inv: dict):
     action = st.segmented_control("Action", ["Approve", "Reject"], default="Approve", key=f"act_{inv['id']}")
     action = (action or "Approve").lower()
     allocations = billing_editor(inv) if action == "approve" else None
+    add_alias = False
+    candidate = pipeline.alias_candidate(inv) if action == "approve" else None
+    if candidate:
+        with db.tx() as c:
+            vendor_name = db.vendor(c, candidate[0])["legal_name"]
+        add_alias = st.checkbox(
+            f"Confirm \"{candidate[1]}\" as an alias of {vendor_name} ({candidate[0]})",
+            key=f"alias_{inv['id']}",
+            help="Later invoices under this name will pass the vendor check. One alias, logged, removable below.")
 
     codes = [c for c, (a, _) in REVIEW_REASONS.items() if a in (action, None)]
     with st.form(f"review_{inv['id']}"):
@@ -61,7 +70,8 @@ def decision_form(inv: dict):
         live = st.container()
         try:
             results = run_with_live_view(live, lambda ev, oi: pipeline.review(
-                inv["id"], action, code, details, reviewer, allocations=allocations, on_event=ev, on_invoice=oi))
+                inv["id"], action, code, details, reviewer, allocations=allocations, add_alias=add_alias,
+                on_event=ev, on_invoice=oi))
         except ValueError as e:
             st.error(str(e))
             return
@@ -164,9 +174,33 @@ def _recent_decisions():
     with db.tx() as c:
         rows = c.execute("""SELECT r.ts, i.internal_id, r.action, r.reason_code, r.details, r.reviewer
                             FROM reviews r JOIN invoices i ON i.id=r.invoice_id ORDER BY r.id DESC LIMIT 10""").fetchall()
+    _learned_aliases()
     if rows:
         st.subheader("Recent reviewer decisions")
         st.dataframe(pd.DataFrame([{
             "When": db.fmt_ts(r["ts"]), "Invoice": r["internal_id"], "Decision": r["action"],
             "Reason": f"{r['reason_code']} · {reason_text(r['reason_code'])}", "Details": r["details"], "By": r["reviewer"],
         } for r in rows]), hide_index=True, width="stretch")
+
+
+def _learned_aliases():
+    """Vendor names a reviewer confirmed: shown with who and when, and removable."""
+    with db.tx() as c:
+        rows = c.execute("""SELECT a.id, a.alias, a.vendor_id, v.legal_name, a.added_by, a.added_at, i.internal_id
+                            FROM vendor_aliases a JOIN vendors v USING(vendor_id)
+                            LEFT JOIN invoices i ON i.id = a.source_invoice_id
+                            WHERE a.removed_at IS NULL ORDER BY a.id""").fetchall()
+    if not rows:
+        return
+    st.subheader("Learned vendor aliases")
+    st.caption("Confirmed by a reviewer while approving a close-name (H6) invoice. "
+               "Invoices under these names now pass the vendor check.")
+    for r in rows:
+        cols = st.columns([4, 1])
+        cols[0].markdown(f"**{r['alias']}** → {r['legal_name']} ({r['vendor_id']}) · added by {r['added_by']}, "
+                         f"{db.fmt_ts(r['added_at'])}, from {r['internal_id'] or '-'}")
+        if cols[1].button("Remove", key=f"rm_alias_{r['id']}"):
+            with db.tx() as c:
+                db.remove_alias(c, r["id"], st.session_state.get("reviewer", "AP reviewer"))
+                db.log(c, None, "Alias", "info", f"Removed alias '{r['alias']}' of {r['vendor_id']}")
+            st.rerun()

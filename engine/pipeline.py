@@ -402,7 +402,11 @@ def stage_vendor(run: Run, ctx: dict):
     ctx["vendor"] = v
     vcfg = checks.config()["vendor_match"]
     score, matched = checks.vendor_score(n["vendor_name"] or "", v)
-    if score >= vcfg["fuzzy_pass"]:
+    learned = next((a for a in v["learned_aliases"] if a["alias"] == matched), None)
+    if score >= vcfg["fuzzy_pass"] and learned:
+        run.emit(S, "pass", f"Invoice vendor '{n['vendor_name']}' matches a confirmed alias of {v['legal_name']} "
+                            f"(added by {learned['added_by']} on {db.fmt_ts(learned['added_at'])})")
+    elif score >= vcfg["fuzzy_pass"]:
         run.emit(S, "pass", f"Invoice vendor '{n['vendor_name']}' matches PO vendor {v['legal_name']} "
                             f"(score {score:.0f} vs '{matched}')")
     elif score >= vcfg["fuzzy_review"]:
@@ -625,13 +629,30 @@ def park(run: Run, ctx: dict, w: Wait) -> dict:
             "reason_code": None, "note": note, "confidence": run.confidence}
 
 
+def alias_candidate(inv: dict) -> tuple[str, str] | None:
+    """(vendor_id, name) a reviewer may confirm as an alias: only for an H6 (close but unclear name) invoice."""
+    decision = json.loads(inv["decision"]) if isinstance(inv["decision"], str) else inv["decision"]
+    extracted = json.loads(inv["extracted"]) if isinstance(inv["extracted"], str) else inv["extracted"]
+    if not decision or not extracted or not decision.get("vendor_id"):
+        return None
+    if not any(f["code"] == "H6" for f in decision["findings"]):
+        return None
+    name = ((extracted.get("vendor_name") or {}).get("value") or "").strip()
+    return (decision["vendor_id"], name) if name else None
+
+
 def review(invoice_id: int, action: str, reason_code: str, details: str = "", reviewer: str = "AP reviewer",
-           allocations: list[dict] | None = None, on_event=None, on_invoice=None) -> list[dict]:
+           allocations: list[dict] | None = None, add_alias: bool = False,
+           on_event=None, on_invoice=None) -> list[dict]:
     """Record a human decision, release the PO hold, and rerun invoices waiting behind it.
 
     Notes are required on every decision. On approval the reviewer states which PO lines the
     invoice bills (allocations: [{line_id, qty, unit_price}]); the PO then becomes partially or
     fully invoiced from those quantities. Default: the lines the system matched.
+
+    add_alias (approval of an H6 invoice only): the reviewer confirms the invoice's vendor name as
+    an alias of the PO's vendor. One alias, one vendor, logged and removable; later invoices
+    under that name pass the vendor check. Never automatic.
     """
     if action not in ("approve", "reject"):
         raise ValueError("action must be approve or reject")
@@ -658,6 +679,9 @@ def review(invoice_id: int, action: str, reason_code: str, details: str = "", re
                     raise ValueError("Choose the PO line(s) and quantities this invoice bills before approving")
                 _validate_allocations(c, invoice_id, applied)
                 db.apply_allocations(c, invoice_id, applied)
+            alias = alias_candidate(inv) if add_alias else None
+            if add_alias and (action != "approve" or not alias):
+                raise ValueError("An alias can only be added when approving an invoice flagged H6 (close vendor name)")
             c.execute("INSERT INTO reviews (invoice_id, action, reason_code, details, reviewer, ts) VALUES (?,?,?,?,?,?)",
                       (invoice_id, action, reason_code, details, reviewer, db.now()))
             c.execute("UPDATE invoices SET status=?, decided_at=? WHERE id=?",
@@ -665,6 +689,9 @@ def review(invoice_id: int, action: str, reason_code: str, details: str = "", re
             msg = f"Reviewer {action}d ({reason_code}: {REVIEW_REASONS[reason_code][1]}) - {details}"
             if applied:
                 msg += "; billed " + ", ".join(f"{a['qty']:g} on {a['line_id']}" for a in applied)
+            if alias:
+                db.add_alias(c, alias[0], alias[1], reviewer, invoice_id)
+                msg += f"; confirmed '{alias[1]}' as an alias of {db.vendor(c, alias[0])['legal_name']}"
             touched = {db.line_po(c, a["line_id"]) for a in applied}
             if held_po and held_po["hold_invoice_id"] == invoice_id:
                 db.release_hold(c, held_po["po_id"])

@@ -70,3 +70,9 @@ Not covered by a PDF: **H13** (AI unavailable; shown by running with an invalid 
 | `u4_deccan_gst_columns.pdf` | Deccan / PO-1010 | Indian GST layout: taxable value, CGST and SGST per line, HSN summary table | **APPROVE (A1)** |
 | `u5_apex_po_without_prefix.pdf` | Apex / PO-1011 | PO printed as "P.O. No: 1011", date "Oct 2, 2026", Western digit grouping | **APPROVE (A1)**: matched to PO-1011 on its digits and vendor |
 | `u6_apex_quotation_not_invoice.pdf` | Apex / PO-1006 | A quotation, not an invoice; items and prices match the PO exactly | **HUMAN REVIEW (H14)**: not a tax invoice, read in full and passed to a person, never approved or sent back |
+
+### Learning a confirmed alias
+
+| File | Vendor / PO | What it shows | Expected |
+|---|---|---|---|
+| `e18_learned_alias_followup.pdf` | "Sri Ganesh Office Solution" / PO-1009 | A second invoice under the same unclear name as e12, billing the pens on PO-1009 | **WAITS** behind e12 (PO-1009 on hold). When the reviewer approves e12 and ticks "confirm as an alias", e18 reruns and is **APPROVE (A1)**: the vendor check passes on the learned alias. Without the tick it would get H6 again |
