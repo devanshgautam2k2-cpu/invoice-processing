@@ -1,0 +1,80 @@
+{
+  "vendor_name": {
+    "value": "Kaveri Traders",
+    "quote": "Kaveri Traders"
+  },
+  "vendor_gstin": {
+    "value": "27AAHFK2211M1Z3",
+    "quote": "GSTIN: 27AAHFK2211M1Z3"
+  },
+  "invoice_number": {
+    "value": "KT/0098",
+    "quote": "Invoice No.: KT/0098"
+  },
+  "invoice_date": {
+    "value": "28/09/2026",
+    "quote": "Invoice Date: 28/09/2026"
+  },
+  "po_number": {
+    "value": "PO-1011",
+    "quote": "PO No.: PO-1011"
+  },
+  "buyer_name": {
+    "value": "Kestrel Retail Pvt Ltd",
+    "quote": "Kestrel Retail Pvt Ltd"
+  },
+  "buyer_gstin": {
+    "value": "27AAKCK4321L1Z9",
+    "quote": "GSTIN: 27AAKCK4321L1Z9"
+  },
+  "bank_name": {
+    "value": "Yes Bank",
+    "quote": "Bank: Yes Bank"
+  },
+  "bank_account_number": {
+    "value": "019283746501",
+    "quote": "A/c No.: 019283746501"
+  },
+  "bank_ifsc": {
+    "value": "YESB0000192",
+    "quote": "IFSC: YESB0000192"
+  },
+  "currency": {
+    "value": "Rs.",
+    "quote": "Rate (Rs.)"
+  },
+  "subtotal": {
+    "value": "1,35,200.00",
+    "quote": "Sub Total 1,35,200.00"
+  },
+  "grand_total": {
+    "value": "1,59,536.00",
+    "quote": "Grand Total 1,59,536.00"
+  },
+  "line_items": [
+    {
+      "description": "Dell 24 Monitor P2425H (23.8\", IPS, FHD)",
+      "hsn": "8528",
+      "quantity": "8",
+      "unit_price": "16,900.00",
+      "amount": "1,35,200.00",
+      "quote": "1 Dell 24 Monitor P2425H (23.8\", IPS, FHD) 8528 8 16,900.00 1,35,200.00"
+    }
+  ],
+  "tax_lines": [
+    {
+      "label": "CGST @ 9%",
+      "rate_percent": "9%",
+      "amount": "12,168.00",
+      "quote": "CGST @ 9% 12,168.00"
+    },
+    {
+      "label": "SGST @ 9%",
+      "rate_percent": "9%",
+      "amount": "12,168.00",
+      "quote": "SGST @ 9% 12,168.00"
+    }
+  ],
+  "discounts": [],
+  "reader_notes": ""
+}

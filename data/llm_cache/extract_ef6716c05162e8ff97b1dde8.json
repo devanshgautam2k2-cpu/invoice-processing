@@ -1,0 +1,80 @@
+{
+  "vendor_name": {
+    "value": "Apex Tech Supplies Pvt Ltd",
+    "quote": "Apex Tech Supplies Pvt Ltd"
+  },
+  "vendor_gstin": {
+    "value": "27AABCA1234F1Z5",
+    "quote": "GSTIN: 27AABCA1234F1Z5"
+  },
+  "invoice_number": {
+    "value": "ATS/26-27/0455",
+    "quote": "Invoice No.: ATS/26-27/0455"
+  },
+  "invoice_date": {
+    "value": "30-09-2026",
+    "quote": "Invoice Date: 30-09-2026"
+  },
+  "po_number": {
+    "value": "PO-1001",
+    "quote": "PO No.: PO-1001"
+  },
+  "buyer_name": {
+    "value": "Kestrel Retail Pvt Ltd",
+    "quote": "Kestrel Retail Pvt Ltd"
+  },
+  "buyer_gstin": {
+    "value": "27AAKCK4321L1Z9",
+    "quote": "GSTIN: 27AAKCK4321L1Z9"
+  },
+  "bank_name": {
+    "value": "HDFC Bank",
+    "quote": "Bank: HDFC Bank"
+  },
+  "bank_account_number": {
+    "value": "50100234564417",
+    "quote": "A/c No.: 50100234564417"
+  },
+  "bank_ifsc": {
+    "value": "HDFC0001234",
+    "quote": "IFSC: HDFC0001234"
+  },
+  "currency": {
+    "value": "Rs.",
+    "quote": "Rate (Rs.)"
+  },
+  "subtotal": {
+    "value": "1,56,000.00",
+    "quote": "Sub Total 1,56,000.00"
+  },
+  "grand_total": {
+    "value": "1,84,080.00",
+    "quote": "Grand Total 1,84,080.00"
+  },
+  "line_items": [
+    {
+      "description": "Dell Latitude 5440 Laptop - Intel i5, 16GB RAM, 512GB SSD",
+      "hsn": "8471",
+      "quantity": "2",
+      "unit_price": "78,000.00",
+      "amount": "1,56,000.00",
+      "quote": "Dell Latitude 5440 Laptop - Intel i5, 16GB RAM, 512GB SSD 8471 2 78,000.00 1,56,000.00"
+    }
+  ],
+  "tax_lines": [
+    {
+      "label": "CGST @ 9%",
+      "rate_percent": "9%",
+      "amount": "14,040.00",
+      "quote": "CGST @ 9% 14,040.00"
+    },
+    {
+      "label": "SGST @ 9%",
+      "rate_percent": "9%",
+      "amount": "14,040.00",
+      "quote": "SGST @ 9% 14,040.00"
+    }
+  ],
+  "discounts": [],
+  "reader_notes": ""
+}

@@ -1,0 +1,60 @@
+{
+  "buyer": {
+    "name": "Kestrel Retail Pvt Ltd",
+    "gstin": "27AAKCK4321L1Z9",
+    "address": "4th Floor, Baner Business Park, Pune 411045"
+  },
+  "tolerance_over": {
+    "approve_pct": 2.0,
+    "approve_abs_inr": 5000,
+    "review_max_pct": 7.0,
+    "note": "Approve if over by <= min(approve_pct, approve_abs_inr); human review up to review_max_pct; above that send back (high reading confidence) or human (low)."
+  },
+  "tolerance_under": {
+    "approve_pct": 2.0,
+    "approve_abs_inr": 10000,
+    "note": "Approve with note if under by <= min(approve_pct, approve_abs_inr); beyond that human review unless a stated discount explains it."
+  },
+  "required_fields": [
+    "vendor_name",
+    "invoice_number",
+    "invoice_date",
+    "po_number",
+    "line_items",
+    "grand_total",
+    "vendor_gstin"
+  ],
+  "vendor_match": {
+    "fuzzy_pass": 90,
+    "fuzzy_review": 75,
+    "note": "rapidfuzz score: >= fuzzy_pass passes, between review and pass goes to human (H6), below review is a clear mismatch (S7)."
+  },
+  "date_sanity": {
+    "allow_before_po_date": false,
+    "max_months_after_po": 3,
+    "note": "Invoice date must fall between the PO date and PO date + max_months_after_po. Outside the window: human review (H10)."
+  },
+  "tax": {
+    "valid_gst_rates": [
+      0,
+      5,
+      12,
+      18,
+      28,
+      40
+    ],
+    "rounding_tolerance_pct": 0.5,
+    "note": "Verify the current GST rate list before production use."
+  },
+  "near_duplicate": {
+    "max_invoice_number_edit_distance": 1
+  },
+  "llm": {
+    "provider": "anthropic",
+    "extraction_model": "claude-haiku-4-5",
+    "line_match_model": "claude-haiku-4-5",
+    "temperature": 0,
+    "max_retries": 2,
+    "note": "Haiku 4.5 for both calls: cheap, reads PDFs and images, and still accepts temperature 0."
+  }
+}

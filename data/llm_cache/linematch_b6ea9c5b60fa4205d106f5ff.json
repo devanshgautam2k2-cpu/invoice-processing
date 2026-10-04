@@ -1,0 +1,14 @@
+{
+  "matches": [
+    {
+      "invoice_line": 1,
+      "po_line_id": "PO-1003-L1",
+      "reason": "Both describe JK Copier A4 paper at 75 GSM with 500 sheets per ream."
+    },
+    {
+      "invoice_line": 2,
+      "po_line_id": "PO-1003-L2",
+      "reason": "Both describe the Kangaro HD-45 heavy duty stapler."
+    }
+  ]
+}

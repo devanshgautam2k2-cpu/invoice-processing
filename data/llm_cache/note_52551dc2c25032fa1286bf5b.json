@@ -1,0 +1,3 @@
+{
+  "note": "This invoice requires human review because it is a scanned image and the AI could not verify the figures against a text layer. The invoice total of Rs 4,04,150.00 exceeds the expected amount of Rs 3,68,750.00 by Rs 35,400.00 (9.60%), which is more than the 7% threshold. Additionally, the unit price on PO-1004-L1 shows Rs 13,700.00 versus the PO price of Rs 12,500.00, an overage of Rs 30,000.00 (9.60%). Please confirm the amounts read from the scanned image and verify whether the pricing aligns with PO-1004 before processing payment."
+}

@@ -1,0 +1,210 @@
+[
+  {
+    "po_id": "PO-1001",
+    "vendor_id": "V-001",
+    "po_date": "2026-09-08",
+    "currency": "INR",
+    "lines": [
+      {
+        "line_id": "PO-1001-L1",
+        "description": "Dell Latitude 5440 Laptop (i5, 16GB, 512GB SSD)",
+        "qty": 10,
+        "unit_price": 78000,
+        "tax_rate": 18
+      },
+      {
+        "line_id": "PO-1001-L2",
+        "description": "Logitech MK270 Wireless Keyboard and Mouse Combo",
+        "qty": 10,
+        "unit_price": 1800,
+        "tax_rate": 18
+      }
+    ]
+  },
+  {
+    "po_id": "PO-1002",
+    "vendor_id": "V-003",
+    "po_date": "2026-09-10",
+    "currency": "INR",
+    "lines": [
+      {
+        "line_id": "PO-1002-L1",
+        "description": "LG 27MP400 27-inch IPS Monitor",
+        "qty": 60,
+        "unit_price": 18500,
+        "tax_rate": 18
+      }
+    ]
+  },
+  {
+    "po_id": "PO-1003",
+    "vendor_id": "V-002",
+    "po_date": "2026-09-12",
+    "currency": "INR",
+    "lines": [
+      {
+        "line_id": "PO-1003-L1",
+        "description": "JK Copier A4 Paper 75 GSM (ream of 500 sheets)",
+        "qty": 500,
+        "unit_price": 290,
+        "tax_rate": 18
+      },
+      {
+        "line_id": "PO-1003-L2",
+        "description": "Kangaro HD-45 Heavy Duty Stapler",
+        "qty": 40,
+        "unit_price": 165,
+        "tax_rate": 18
+      }
+    ]
+  },
+  {
+    "po_id": "PO-1004",
+    "vendor_id": "V-004",
+    "po_date": "2026-09-05",
+    "currency": "INR",
+    "lines": [
+      {
+        "line_id": "PO-1004-L1",
+        "description": "Ergonomic Mesh Office Chair, Model DF-EC21",
+        "qty": 25,
+        "unit_price": 12500,
+        "tax_rate": 18
+      }
+    ]
+  },
+  {
+    "po_id": "PO-1005",
+    "vendor_id": "V-005",
+    "po_date": "2026-09-15",
+    "currency": "INR",
+    "lines": [
+      {
+        "line_id": "PO-1005-L1",
+        "description": "Inter-city freight, Pune to Mumbai (per trip)",
+        "qty": 12,
+        "unit_price": 9500,
+        "tax_rate": 18
+      }
+    ]
+  },
+  {
+    "po_id": "PO-1006",
+    "vendor_id": "V-001",
+    "po_date": "2026-09-18",
+    "currency": "INR",
+    "lines": [
+      {
+        "line_id": "PO-1006-L1",
+        "description": "HP LaserJet Pro M404dn Printer",
+        "qty": 4,
+        "unit_price": 24500,
+        "tax_rate": 18
+      }
+    ]
+  },
+  {
+    "po_id": "PO-1007",
+    "vendor_id": "V-005",
+    "po_date": "2026-09-16",
+    "currency": "INR",
+    "lines": [
+      {
+        "line_id": "PO-1007-L1",
+        "description": "Warehouse loading and unloading labour (per day)",
+        "qty": 20,
+        "unit_price": 4500,
+        "tax_rate": 18
+      }
+    ]
+  },
+  {
+    "po_id": "PO-1008",
+    "vendor_id": "V-003",
+    "po_date": "2026-09-14",
+    "currency": "INR",
+    "lines": [
+      {
+        "line_id": "PO-1008-L1",
+        "description": "Logitech C920 HD Pro Webcam",
+        "qty": 30,
+        "unit_price": 6200,
+        "tax_rate": 18
+      },
+      {
+        "line_id": "PO-1008-L2",
+        "description": "Jabra Evolve2 30 Wired Headset",
+        "qty": 30,
+        "unit_price": 4800,
+        "tax_rate": 18
+      }
+    ]
+  },
+  {
+    "po_id": "PO-1009",
+    "vendor_id": "V-002",
+    "po_date": "2026-09-17",
+    "currency": "INR",
+    "lines": [
+      {
+        "line_id": "PO-1009-L1",
+        "description": "Camlin Whiteboard Marker (box of 10)",
+        "qty": 100,
+        "unit_price": 220,
+        "tax_rate": 18
+      },
+      {
+        "line_id": "PO-1009-L2",
+        "description": "Cello Butterflow Ball Pen (box of 25)",
+        "qty": 60,
+        "unit_price": 250,
+        "tax_rate": 18
+      }
+    ]
+  },
+  {
+    "po_id": "PO-1010",
+    "vendor_id": "V-004",
+    "po_date": "2026-09-20",
+    "currency": "INR",
+    "lines": [
+      {
+        "line_id": "PO-1010-L1",
+        "description": "Steel Storage Cabinet, 4 shelves, Model DF-SC4",
+        "qty": 10,
+        "unit_price": 15800,
+        "tax_rate": 18
+      }
+    ]
+  },
+  {
+    "po_id": "PO-1011",
+    "vendor_id": "V-001",
+    "po_date": "2026-09-21",
+    "currency": "INR",
+    "lines": [
+      {
+        "line_id": "PO-1011-L1",
+        "description": "Dell 24 Monitor P2425H",
+        "qty": 8,
+        "unit_price": 16900,
+        "tax_rate": 18
+      }
+    ]
+  },
+  {
+    "po_id": "PO-1012",
+    "vendor_id": "V-005",
+    "po_date": "2026-09-22",
+    "currency": "INR",
+    "lines": [
+      {
+        "line_id": "PO-1012-L1",
+        "description": "Intra-city courier, per consignment (Pune)",
+        "qty": 50,
+        "unit_price": 600,
+        "tax_rate": 18
+      }
+    ]
+  }
+]

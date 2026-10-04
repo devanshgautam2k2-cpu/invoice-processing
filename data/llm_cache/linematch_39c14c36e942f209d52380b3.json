@@ -1,0 +1,9 @@
+{
+  "matches": [
+    {
+      "invoice_line": 1,
+      "po_line_id": "PO-1010-L1",
+      "reason": "Both describe the same steel storage cabinet model DF-SC4 with 4 shelves; colour specification does not affect the product match."
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "matches": [
+    {
+      "invoice_line": 1,
+      "po_line_id": "PO-1001-L1",
+      "reason": "Both describe the same Dell Latitude 5440 laptop with identical specifications (i5 processor, 16GB RAM, 512GB SSD)."
+    },
+    {
+      "invoice_line": 2,
+      "po_line_id": "PO-1001-L2",
+      "reason": "Both describe the same Logitech MK270 wireless keyboard and mouse combo product."
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "matches": [
+    {
+      "invoice_line": 1,
+      "po_line_id": "PO-1008-L1",
+      "reason": "Invoice line describes the same Logitech C920 HD Pro Webcam model as PO line PO-1008-L1."
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "matches": [
+    {
+      "invoice_line": 1,
+      "po_line_id": "PO-1002-L1",
+      "reason": "Both describe the same LG 27MP400 27-inch IPS monitor model, with Full HD specification implied in the PO description."
+    }
+  ]
+}

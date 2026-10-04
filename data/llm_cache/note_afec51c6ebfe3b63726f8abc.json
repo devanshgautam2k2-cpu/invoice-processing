@@ -1,0 +1,3 @@
+{
+  "note": "Invoice INT-0018 from Blue River Logistics Pvt Ltd requires human review because the totals do not reconcile. The invoice's own line items (taxable value Rs 22,500.00 plus tax Rs 4,050.00) add up to Rs 26,550.00, but the printed grand total shows Rs 27,550.00, a discrepancy of Rs 1,000.00. Additionally, the invoice total of Rs 27,550.00 exceeds the expected amount of Rs 26,550.00 by Rs 1,000.00 (3.77%), which is above the automatic approval limit. Please contact Blue River Logistics Pvt Ltd to clarify the correct invoice total before processing payment."
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "vendor_id": "V-001",
+    "legal_name": "Apex Tech Supplies Pvt Ltd",
+    "aliases": ["Apex Tech", "APEX TECH SUPPLIES", "Apex Tech Supplies"],
+    "gstin": "27AABCA1234F1Z5",
+    "bank": {"bank_name": "HDFC Bank", "account_number": "50100234564417", "ifsc": "HDFC0001234"},
+    "contact_email": "accounts@apextech.example"
+  },
+  {
+    "vendor_id": "V-002",
+    "legal_name": "Shree Ganesh Office Solutions",
+    "aliases": ["SG Office Solutions", "Shree Ganesh Office", "SGOS"],
+    "gstin": "27AAKFS5678G1Z2",
+    "bank": {"bank_name": "ICICI Bank", "account_number": "001205018820", "ifsc": "ICIC0004567"},
+    "contact_email": "billing@sgoffice.example"
+  },
+  {
+    "vendor_id": "V-003",
+    "legal_name": "Northwind Electronics LLP",
+    "aliases": ["Northwind Electronics", "NW Electronics", "Northwind"],
+    "gstin": "29AAJFN9012H1Z8",
+    "bank": {"bank_name": "Axis Bank", "account_number": "918020043053051", "ifsc": "UTIB0007890"},
+    "contact_email": "ar@northwind.example"
+  },
+  {
+    "vendor_id": "V-004",
+    "legal_name": "Deccan Furniture Works",
+    "aliases": ["Deccan Furniture", "DFW"],
+    "gstin": "27AAEFD3456J1Z4",
+    "bank": {"bank_name": "State Bank of India", "account_number": "38291046694", "ifsc": "SBIN0012345"},
+    "contact_email": "accounts@deccanfurniture.example"
+  },
+  {
+    "vendor_id": "V-005",
+    "legal_name": "Blue River Logistics Pvt Ltd",
+    "aliases": ["Blue River Logistics", "BRL", "Blue River"],
+    "gstin": "07AABCB7890K1Z1",
+    "bank": {"bank_name": "Kotak Mahindra Bank", "account_number": "4612032208", "ifsc": "KKBK0002345"},
+    "contact_email": "finance@blueriver.example"
+  }
+]

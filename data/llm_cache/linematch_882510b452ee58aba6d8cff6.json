@@ -1,0 +1,9 @@
+{
+  "matches": [
+    {
+      "invoice_line": 1,
+      "po_line_id": "UNMATCHED",
+      "reason": "The invoice describes a Godrej Interio visitor chair, which does not match either whiteboard markers or ball pens in the PO shortlist."
+    }
+  ]
+}

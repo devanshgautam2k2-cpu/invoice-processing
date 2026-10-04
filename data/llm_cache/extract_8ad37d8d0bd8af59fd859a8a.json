@@ -1,0 +1,74 @@
+{
+  "vendor_name": {
+    "value": "Northwind Electronics LLP",
+    "quote": "Northwind Electronics LLP | No. 88, 3rd Cross, Koramangala, Bengaluru 560034, Karnataka"
+  },
+  "vendor_gstin": {
+    "value": "29AAJFN9012H1Z8",
+    "quote": "Supplier GSTIN 29AAJFN9012H1Z8"
+  },
+  "invoice_number": {
+    "value": "NWE-2026-1187",
+    "quote": "Bill No. NWE-2026-1187"
+  },
+  "invoice_date": {
+    "value": "18 Sep 2026",
+    "quote": "Dated 18 Sep 2026"
+  },
+  "po_number": {
+    "value": "PO-1002",
+    "quote": "Your Ref PO-1002"
+  },
+  "buyer_name": {
+    "value": "Kestrel Retail Pvt Ltd",
+    "quote": "Billed To Kestrel Retail Pvt Ltd"
+  },
+  "buyer_gstin": {
+    "value": "27AAKCK4321L1Z9",
+    "quote": "Buyer GSTIN 27AAKCK4321L1Z9"
+  },
+  "bank_name": {
+    "value": "Axis Bank",
+    "quote": "Remit to Northwind Electronics LLP, Axis Bank"
+  },
+  "bank_account_number": {
+    "value": "918020043053051",
+    "quote": "Account 918020043053051"
+  },
+  "bank_ifsc": {
+    "value": "UTIB0007890",
+    "quote": "IFSC UTIB0007890"
+  },
+  "currency": {
+    "value": "INR",
+    "quote": "Amount Payable (INR)"
+  },
+  "subtotal": {
+    "value": "3,70,000.00",
+    "quote": "Taxable Value 3,70,000.00"
+  },
+  "grand_total": {
+    "value": "4,36,600.00",
+    "quote": "Amount Payable (INR) 4,36,600.00"
+  },
+  "line_items": [
+    {
+      "description": "LG 27MP400 27\" IPS Full HD Monitor",
+      "hsn": "8528",
+      "quantity": "20",
+      "unit_price": "18,500.00",
+      "amount": "3,70,000.00",
+      "quote": "LG 27MP400 27\" IPS Full HD Monitor 8528 20 18,500.00 3,70,000.00"
+    }
+  ],
+  "tax_lines": [
+    {
+      "label": "IGST @ 18%",
+      "rate_percent": "18%",
+      "amount": "66,600.00",
+      "quote": "IGST @ 18% 66,600.00"
+    }
+  ],
+  "discounts": [],
+  "reader_notes": ""
+}

@@ -1,0 +1,9 @@
+{
+  "matches": [
+    {
+      "invoice_line": 1,
+      "po_line_id": "PO-1004-L1",
+      "reason": "Both describe the same ergonomic mesh office chair model DF-EC21; the invoice specifies the color as black which is a detail of the same product."
+    }
+  ]
+}

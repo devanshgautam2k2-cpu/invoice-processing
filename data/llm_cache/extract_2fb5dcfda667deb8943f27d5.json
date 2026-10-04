@@ -1,0 +1,80 @@
+{
+  "vendor_name": {
+    "value": "Apex Tech Supplies Pvt Ltd",
+    "quote": "Apex Tech Supplies Pvt Ltd"
+  },
+  "vendor_gstin": {
+    "value": "27AABCA1234F1Z5",
+    "quote": "GSTIN: 27AABCA1234F1Z5"
+  },
+  "invoice_number": {
+    "value": "ATS/26-27/0418",
+    "quote": "Invoice No.: ATS/26-27/0418"
+  },
+  "invoice_date": {
+    "value": "01-10-2026",
+    "quote": "Invoice Date: 01-10-2026"
+  },
+  "po_number": {
+    "value": "PO-1011",
+    "quote": "PO No.: PO-1011"
+  },
+  "buyer_name": {
+    "value": "Kestrel Retail Pvt Ltd",
+    "quote": "Kestrel Retail Pvt Ltd"
+  },
+  "buyer_gstin": {
+    "value": "27AAKCK4321L1Z9",
+    "quote": "GSTIN: 27AAKCK4321L1Z9"
+  },
+  "bank_name": {
+    "value": "HDFC Bank",
+    "quote": "Bank: HDFC Bank"
+  },
+  "bank_account_number": {
+    "value": "50100234564417",
+    "quote": "A/c No.: 50100234564417"
+  },
+  "bank_ifsc": {
+    "value": "HDFC0001234",
+    "quote": "IFSC: HDFC0001234"
+  },
+  "currency": {
+    "value": "Rs.",
+    "quote": "Rate (Rs.)"
+  },
+  "subtotal": {
+    "value": "33,800.00",
+    "quote": "Sub Total 33,800.00"
+  },
+  "grand_total": {
+    "value": "39,884.00",
+    "quote": "Grand Total 39,884.00"
+  },
+  "line_items": [
+    {
+      "description": "Dell 24 Monitor P2425H (23.8\", IPS, FHD)",
+      "hsn": "8528",
+      "quantity": "2",
+      "unit_price": "16,900.00",
+      "amount": "33,800.00",
+      "quote": "1 Dell 24 Monitor P2425H (23.8\", IPS, FHD) 8528 2 16,900.00 33,800.00"
+    }
+  ],
+  "tax_lines": [
+    {
+      "label": "CGST @ 9%",
+      "rate_percent": "9%",
+      "amount": "3,042.00",
+      "quote": "CGST @ 9% 3,042.00"
+    },
+    {
+      "label": "SGST @ 9%",
+      "rate_percent": "9%",
+      "amount": "3,042.00",
+      "quote": "SGST @ 9% 3,042.00"
+    }
+  ],
+  "discounts": [],
+  "reader_notes": ""
+}
