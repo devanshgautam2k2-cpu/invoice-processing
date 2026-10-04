@@ -25,7 +25,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 os.environ["INVOICE_DB_PATH"] = str(Path(tempfile.mkdtemp()) / "regression.db")
-os.environ["INVOICE_OFFLINE"] = "1"
+if not os.environ.get("REGRESSION_ONLINE"):  # REGRESSION_ONLINE=1 only to save results after a prompt change
+    os.environ["INVOICE_OFFLINE"] = "1"
 sys.path.insert(0, str(ROOT))
 
 from engine import db, pipeline  # noqa: E402
@@ -152,6 +153,19 @@ def main() -> int:
     for f in unseen:
         r = results.get(f.name, {})
         rep.check(f.name, (r.get("outcome"), r.get("reason_code")), expected.get(f.name))
+
+    print("\nRun E: an unexpected error mid-pipeline goes to a person (H15), never stuck")
+    from engine import checks
+    original = checks.tax_rate_check
+    checks.tax_rate_check = lambda n: (_ for _ in ()).throw(RuntimeError("simulated failure"))
+    try:
+        results = run([TEST_DIR / "01_apex_happy_path.pdf"])
+    finally:
+        checks.tax_rate_check = original
+    r = results.get("01_apex_happy_path.pdf", {})
+    rep.check("unexpected error -> human review H15", (r.get("outcome"), r.get("reason_code")), ("human_review", "H15"))
+    with db.tx() as c:
+        rep.check("PO-1001 held, not left half-processed", db.po(c, "PO-1001")["status"], "On hold")
 
     total = rep.passes + len(rep.failures)
     print(f"\n{rep.passes}/{total} checks passed" + (f"; FAILED: {', '.join(rep.failures)}" if rep.failures else ""))

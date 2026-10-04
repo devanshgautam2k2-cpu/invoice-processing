@@ -1,3 +1,0 @@
-{
-  "note": "Invoice INT-0014 from Blue River Logistics Pvt Ltd must be sent back because a required field is missing: vendor_gstin. The invoice total of Rs 14,160.00 matches the expected amount, but the tax invoice cannot be processed without the vendor's GST identification number. Please return this invoice to the vendor and request the missing GSTIN before resubmitting."
-}

@@ -35,7 +35,7 @@ Unseen invoices (`test_invoices/unseen/`, new layouts, a phone photo, a two-page
 python tests/test_regression.py
 ```
 
-Runs all 31 test invoices (core, edge-case and unseen) on a throwaway database, offline (cached AI results only, no API spend, a few seconds), and checks every outcome and reason code against `test_invoices/EXPECTED.md`. It also checks the reviewer flow (approving 03a reruns 03b), the final PO statuses, and alias learning (with the tick e18 is approved on the learned alias; without it, H6 again). 49 checks; exit code 0 means all pass. Run it after any rule change.
+Runs all 33 test invoices (core, edge-case and unseen) on a throwaway database, offline (cached AI results only, no API spend, a few seconds), and checks every outcome and reason code against `test_invoices/EXPECTED.md`. It also checks the reviewer flow (approving 03a reruns 03b), the final PO statuses, alias learning (with the tick e18 is approved on the learned alias; without it, H6 again), H8, and a simulated crash that must end in H15 rather than a stuck invoice. 55 checks; exit code 0 means all pass. Run it after any rule change.
 
 ### Demo order (5 minutes)
 
@@ -57,14 +57,14 @@ Nine stages, strictly one invoice at a time. Every stage can exit early with a r
 | # | Stage | Who | What |
 |---|---|---|---|
 | 1 | Receive | code | Internal ID (`INT-0001`) and SHA-256 file fingerprint |
-| 2 | Read | code + **LLM** | Text PDF or scan? Claude transcribes every field **with the exact text it read it from**; "not found" instead of guesses. Extraction never sees the PO. It also says what the document is: anything but a tax invoice or bill of supply is read in full and goes to a human (H14), never back to the vendor. |
+| 2 | Read | code + **LLM** | Text PDF or scan? Claude transcribes every field **with the exact text it read it from**; "not found" instead of guesses. Extraction never sees the PO. It also says what the document is: anything but a tax invoice or bill of supply is read in full and goes to a human (H14), never back to the vendor. **Currency:** an invoice in another currency is converted to INR at the invoice-date rate (Frankfurter / ECB, saved for replays, config fallback), every check runs on the INR values, and a person gives final approval (H16). |
 | 3 | Reading confidence | code | Qty × price = amount; lines = subtotal; subtotal + tax = total; each key field's quote is found in the PDF's text layer. Scans are always Low. |
 | 4 | Required fields | code | 7 fields. Missing: send back (S1) if confidence is High, else human (H3). |
 | 5 | Duplicates | code | Same file (S2, or S10 if the original was rejected); same vendor + number + amount as an approved invoice (S2); number already approved, different amount (S3); unchanged resend of a rejected invoice (S10), while a changed one is processed as a corrected version; number one character off (H9); same number still under review → wait |
 | 6 | PO | code + **LLM** | Exists? A PO written without its prefix ("P.O. 1011") is matched on its digits if it belongs to the same vendor. Not found → the vendor's open POs are checked as **candidates** (Claude pairs the lines; code checks quantities and prices): a fit goes to a human with the candidate named and held (H8, "possible typo"); no fit is sent back (S9). Fully invoiced (S4)? On hold → **wait and rerun after the decision** |
 | 7 | Vendor | code | Name vs PO vendor and aliases, rapidfuzz ≥90 pass, 75–90 human (H6), <75 S7; bank account + IFSC vs vendor master (H7); GSTIN (informational) |
 | 8 | Lines | **LLM** + code | Claude pairs each invoice line with a PO line, **choosing only from that PO's line IDs** or UNMATCHED. Code checks quantity ≤ remaining (S5), every unit price and the expected total against the tolerance bands, the invoice date (PO date to PO date + 3 months, H10) and the implied GST rate. |
-| 9 | Decide | code | Most severe wins. **Nothing goes back to a vendor unless reading confidence is High**; otherwise a human sees it first. One exception: a byte-identical resend (same file hash) is a duplicate whatever the reading quality. |
+| 9 | Decide | code | Anything outside what the system understands (an unexpected error, an unrecognised document type or currency, a text PDF the AI found hard to read) goes to a person as **H15 Unclassified**, never to the "closest" rule and never left stuck. Most severe wins. **Nothing goes back to a vendor unless reading confidence is High**; otherwise a human sees it first. One exception: a byte-identical resend (same file hash) is a duplicate whatever the reading quality. |
 | — | Note | **LLM** | A plain-English note that only narrates what code decided (template fallback if the AI is down) |
 | — | Update | code | Approve: add quantities to PO lines. Human review: put the PO on hold with a timer. Every value, comparison, rule, decision and override goes to the audit trail. |
 
@@ -123,7 +123,7 @@ Built deliberately small; each item has a path to production.
 | Financial year in the invoice-number key | Vendor + number | Add FY (numbering restarts each April) |
 | Partial approvals / short-paying | Whole invoice approved or sent back | Approve good lines, dispute the rest |
 | Concurrent database | SQLite, one writer | Postgres with row locks per PO, so only invoices on the same PO serialise |
-| Currency conversion, full tax engine | INR only; implied-rate sanity check | Rate service, HSN-level tax rules |
+| Full tax engine | Implied-rate sanity check (foreign currency is converted and sent to a person) | HSN-level tax rules |
 | Clustering "Other" review reasons | Stored as free text | LLM groups them into candidate new reason codes |
 | Vendor channel for corrected invoices | Corrected resend with the same number is detected and processed | Vendor portal to withdraw or replace an invoice |
 | Learning from reviewer decisions | **Built:** a reviewer can confirm a close vendor name as an alias (explicit tick, one alias, logged, removable) | Bank-detail changes with maker-checker. **Patterns:** at least 7 matching decisions for the same vendor or PO and reason produce a *suggested* rule change for a finance lead to accept or decline, never an automatic one |

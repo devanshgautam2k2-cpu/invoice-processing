@@ -1,0 +1,76 @@
+{
+  "document_type": "tax_invoice",
+  "document_type_quote": "TAX INVOICE (billed in USD)",
+  "vendor_name": {
+    "value": "Northwind Electronics LLP",
+    "quote": "Northwind Electronics LLP"
+  },
+  "vendor_gstin": {
+    "value": "29AAJFN9012H1Z8",
+    "quote": "GSTIN 29AAJFN9012H1Z8"
+  },
+  "invoice_number": {
+    "value": "NWE-2026-1340",
+    "quote": "Invoice No. NWE-2026-1340"
+  },
+  "invoice_date": {
+    "value": "02 Oct 2026",
+    "quote": "Date 02 Oct 2026"
+  },
+  "po_number": {
+    "value": "PO-1002",
+    "quote": "PO Reference PO-1002"
+  },
+  "buyer_name": {
+    "value": "Kestrel Retail Pvt Ltd",
+    "quote": "Bill To Kestrel Retail Pvt Ltd"
+  },
+  "buyer_gstin": {
+    "value": "27AAKCK4321L1Z9",
+    "quote": "Buyer GSTIN 27AAKCK4321L1Z9"
+  },
+  "bank_name": {
+    "value": "Axis Bank",
+    "quote": "Pay to Axis Bank, A/c 918020043053051, IFSC UTIB0007890"
+  },
+  "bank_account_number": {
+    "value": "918020043053051",
+    "quote": "Pay to Axis Bank, A/c 918020043053051, IFSC UTIB0007890"
+  },
+  "bank_ifsc": {
+    "value": "UTIB0007890",
+    "quote": "Pay to Axis Bank, A/c 918020043053051, IFSC UTIB0007890"
+  },
+  "currency": {
+    "value": "USD",
+    "quote": "Currency USD"
+  },
+  "subtotal": {
+    "value": "$1,920.70",
+    "quote": "Subtotal $1,920.70"
+  },
+  "grand_total": {
+    "value": "$2,266.43",
+    "quote": "Total (USD) $2,266.43"
+  },
+  "line_items": [
+    {
+      "description": "LG 27MP400 27-inch IPS Monitor",
+      "hsn": "",
+      "quantity": "10",
+      "unit_price": "$192.07",
+      "amount": "$1,920.70",
+      "quote": "LG 27MP400 27-inch IPS Monitor 10 $192.07 $1,920.70"
+    }
+  ],
+  "tax_lines": [
+    {
+      "label": "IGST 18%",
+      "rate_percent": "18%",
+      "amount": "$345.73",
+      "quote": "IGST 18% $345.73"
+    }
+  ],
+  "discounts": [],
+  "reader_notes": ""
+}

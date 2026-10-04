@@ -1,0 +1,3 @@
+{
+  "note": "Invoice INT-0019 requires human review because the vendor name 'Sri Ganesh Office Solution' is a close but unclear match for Shree Ganesh Office Solutions (score 84). The invoice total of Rs 25,960.00 matches the expected amount and all other details are in order. Please verify the vendor name against your master vendor list before processing payment."
+}

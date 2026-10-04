@@ -13,7 +13,7 @@ from datetime import date
 
 from rapidfuzz.distance import Levenshtein
 
-from . import checks, db, llm
+from . import checks, db, fx, llm
 from .checks import inr
 from .pdf_reader import file_hash, source_type
 
@@ -44,6 +44,8 @@ REASONS = {
     "H12": ("human_review", "A field could not be verified against the document text"),
     "H13": ("human_review", "AI service unavailable; invoice could not be read"),
     "H14": ("human_review", "Not a tax invoice (quotation, proforma, credit note, ...); read and passed to a human"),
+    "H15": ("human_review", "Unclassified: outside what the system understands; needs a person"),
+    "H16": ("human_review", "Foreign currency: converted to INR for the checks; a person gives final approval"),
 }
 SEVERITY = {"approve": 1, "human_review": 2, "send_back": 3}
 OUTCOME_STATUS = {"approve": "approved", "human_review": "human_review", "send_back": "sent_back"}
@@ -144,17 +146,33 @@ def _process(invoice_id: int, on_event=None) -> dict:
         ctx = {"inv": inv}
         try:
             for stage_fn in (stage_receive, stage_read, stage_document_type, stage_confidence, stage_required,
-                             stage_duplicates, stage_po, stage_vendor, stage_lines):
+                             stage_currency, stage_duplicates, stage_po, stage_vendor, stage_lines):
                 stage_fn(run, ctx)
         except Stop:
             pass
         except Wait as w:
             return park(run, ctx, w)
+        except Exception as e:  # anything unforeseen: never left stuck, a person decides
+            run.force_human = True
+            run.flag("H15", "Error", f"Processing stopped on an unexpected error ({type(e).__name__}: {e}). "
+                                     "Everything read so far is shown; please review the document directly.")
+            run.emit("Error", "fail", f"Unexpected error: {type(e).__name__}: {e}")
         except llm.LLMUnavailable as e:
             run.flag("H13", "2 Read", f"The invoice could not be read: {e}")
             run.low_confidence("AI service unavailable")
             run.emit("2 Read", "fail", f"AI service unavailable: {e}")
-        return decide_and_record(run, ctx)
+        try:
+            return decide_and_record(run, ctx)
+        except Exception as e:  # even recording failed: park it with a person, never leave it "processing"
+            conn.rollback()
+            note = (f"Sent to human review (H15): the decision could not be recorded "
+                    f"({type(e).__name__}: {e}). Please review the document directly.")
+            conn.execute("UPDATE invoices SET status='human_review', reason_code='H15', note=?, decided_at=? WHERE id=?",
+                         (note, db.now(), invoice_id))
+            db.log(conn, invoice_id, "Error", "fail", note)
+            conn.commit()
+            return {"invoice_id": invoice_id, "internal_id": ctx["inv"]["internal_id"], "outcome": "human_review",
+                    "reason_code": "H15", "note": note, "confidence": "Low"}
     finally:
         conn.close()
 
@@ -201,6 +219,12 @@ def stage_document_type(run: Run, ctx: dict):
         run.emit(S, "pass", f"Document type: {doc_type.replace('_', ' ')}" + (f' (read from "{quote}")' if quote else ""))
         return
     run.force_human = True
+    if doc_type == "other":
+        run.flag("H15", S, "The AI could not tell what kind of document this is"
+                           + (f' (it says "{quote}")' if quote else "")
+                           + ". Everything readable was collected; a person decides.")
+        run.emit(S, "warn", "Unrecognised document type; it will go to a human")
+        return
     run.flag("H14", S, f"This document is a {doc_type.replace('_', ' ')}, not a tax invoice"
                        + (f' (it says "{quote}")' if quote else "")
                        + ". Everything readable was collected; a person decides what to do with it.")
@@ -233,6 +257,9 @@ def stage_confidence(run: Run, ctx: dict):
     notes = (ctx["extracted"].get("reader_notes") or "").strip()
     if notes:
         run.emit(S, "info", f"Reader notes: {notes}")
+        if ctx["source_type"] == "text":  # a scan is already H3; a text PDF the AI found hard to read is unusual
+            run.force_human = True
+            run.flag("H15", S, f"The AI flagged this text PDF as hard to read: {notes}")
     run.emit(S, "pass" if run.confidence == "High" else "warn",
              f"Reading confidence: {run.confidence}" +
              (f" ({'; '.join(run.confidence_reasons)})" if run.confidence_reasons else
@@ -270,6 +297,36 @@ def _same_contents(a: dict, b: dict) -> bool:
         return (n["invoice_number"], n["grand_total"],
                 tuple((l["description"], l["qty"], l["unit_price"]) for l in n["lines"]))
     return key(a) == key(b)
+
+
+def stage_currency(run: Run, ctx: dict):
+    """INR proceeds as is. Another currency is converted to INR so every check can run, then a person decides."""
+    S = "2 Read"
+    n = ctx["n"]
+    raw = ((ctx["extracted"].get("currency") or {}).get("value") or "").strip()
+    code = fx.currency_code(raw)
+    if code == "INR":
+        return
+    run.force_human = True
+    if code is None:
+        run.flag("H15", S, f"Currency '{raw}' not recognised; amounts were not converted. Please check the currency.")
+        run.emit(S, "warn", f"Unrecognised currency '{raw}'")
+        return
+    try:
+        rate, rate_date, source = fx.rate_to_inr(code, n["invoice_date"])
+    except fx.FxUnavailable as e:
+        run.flag("H15", S, f"Invoice is in {code} and no exchange rate was available ({e}); amounts not converted.")
+        run.emit(S, "warn", f"No {code} rate available")
+        return
+    original_total = n["grand_total"]
+    fx.convert(n, rate)
+    ctx["fx"] = {"currency": code, "rate": rate, "rate_date": rate_date, "source": source,
+                 "original_total": original_total}
+    run.c.execute("UPDATE invoices SET grand_total=? WHERE id=?", (n["grand_total"], run.id))
+    total_txt = (f"{code} {original_total:,.2f} = {inr(n['grand_total'])}" if original_total is not None else "")
+    run.flag("H16", S, f"Invoice is in {code}. Converted at 1 {code} = Rs {rate:,.4f} ({source}, {rate_date}). "
+                       f"{total_txt}. All checks ran on the INR values; please give final approval.")
+    run.emit(S, "warn", f"Foreign currency {code}: converted at {rate:,.4f} INR ({rate_date}); {total_txt}")
 
 
 def stage_duplicates(run: Run, ctx: dict):
@@ -622,6 +679,7 @@ def decide_and_record(run: Run, ctx: dict) -> dict:
         "reason_code": code,
         "reason": REASONS[code][1],
         "document_type": ctx.get("document_type"),
+        "currency_conversion": ctx.get("fx"),
         "reading_confidence": run.confidence,
         "confidence_reasons": run.confidence_reasons,
         "issues": [{"code": f["code"], "message": f["message"]} for f in run.findings],

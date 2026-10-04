@@ -64,5 +64,16 @@
       "bill_of_supply"
     ],
     "note": "The AI classifies every document. Anything else (quotation, proforma, credit note, ...) is read in full and passed to a human (H14), never sent back."
+  },
+  "currency": {
+    "base": "INR",
+    "fallback_rates_to_inr": {
+      "USD": 96.32,
+      "EUR": 112.0,
+      "GBP": 128.0,
+      "AED": 26.2,
+      "SGD": 74.5
+    },
+    "note": "Invoices in another currency are converted to INR at the invoice-date rate (Frankfurter / ECB, saved in data/fx_cache.json), checked as usual, and always sent to a person (H16). Fallback rates are used only if the rate service can't be reached."
   }
 }

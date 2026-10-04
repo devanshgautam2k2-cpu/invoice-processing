@@ -71,6 +71,7 @@ Not covered by a PDF: **H13** (AI unavailable; shown by running with an invalid 
 | `u4_deccan_gst_columns.pdf` | Deccan / PO-1010 | Indian GST layout: taxable value, CGST and SGST per line, HSN summary table | **APPROVE (A1)** |
 | `u5_apex_po_without_prefix.pdf` | Apex / PO-1011 | PO printed as "P.O. No: 1011", date "Oct 2, 2026", Western digit grouping | **APPROVE (A1)**: matched to PO-1011 on its digits and vendor |
 | `u6_apex_quotation_not_invoice.pdf` | Apex / PO-1006 | A quotation, not an invoice; items and prices match the PO exactly | **HUMAN REVIEW (H14)**: not a tax invoice, read in full and passed to a person, never approved or sent back |
+| `u7_northwind_billed_in_usd.pdf` | Northwind / PO-1002 | Billed in US dollars: 10 monitors at $192.07 | **HUMAN REVIEW (H16)**: converted to INR at the invoice-date rate (Frankfurter / ECB, saved in `data/fx_cache.json`), all checks run on the INR values, and a person gives final approval |
 
 ### Learning a confirmed alias
 

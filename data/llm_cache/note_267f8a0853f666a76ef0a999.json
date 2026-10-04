@@ -1,0 +1,3 @@
+{
+  "note": "Send back invoice INT-0011 because the vendor does not match the PO: the invoice is from Kaveri Traders but PO-1011 belongs to Apex Tech Supplies Pvt Ltd. Additionally, the bank details on the invoice (a/c 019283746501, IFSC YESB0000192) differ from vendor records (a/c ending 4417, IFSC HDFC0001234)—verify through a known vendor contact, not by replying to the invoice. Return this invoice to Kaveri Traders and request a corrected invoice from the correct vendor, or confirm with procurement whether the PO assignment is in error."
+}

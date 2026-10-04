@@ -1,0 +1,3 @@
+{
+  "note": "This invoice requires human review because the totals do not reconcile. The invoice's own numbers do not add up: taxable value Rs 22,500.00 plus tax Rs 4,050.00 equals Rs 26,550.00, but the printed grand total is Rs 27,550.00. Additionally, the invoice total of Rs 27,550.00 exceeds the expected amount of Rs 26,550.00 by Rs 1,000.00 (3.77%), which is above the automatic approval limit. Please verify the correct amounts with Blue River Logistics Pvt Ltd before processing payment."
+}
