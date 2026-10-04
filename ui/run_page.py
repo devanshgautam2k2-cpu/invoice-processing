@@ -9,6 +9,7 @@ from ui.common import badge, load_invoices, reason_text, run_with_live_view
 
 TEST_DIR = ROOT / "test_invoices"
 EXT_DIR = TEST_DIR / "extended"
+UNSEEN_DIR = TEST_DIR / "unseen"  # never tuned on, nothing cached: a live AI read
 
 
 def page():
@@ -18,12 +19,15 @@ def page():
 
     test_files = sorted(p.name for p in TEST_DIR.glob("*.pdf"))
     ext_files = sorted(p.name for p in EXT_DIR.glob("*.pdf"))
-    paths = {n: TEST_DIR / n for n in test_files} | {n: EXT_DIR / n for n in ext_files}
+    unseen_files = sorted(p.name for p in UNSEEN_DIR.glob("*.pdf"))
+    paths = ({n: TEST_DIR / n for n in test_files} | {n: EXT_DIR / n for n in ext_files}
+             | {n: UNSEEN_DIR / n for n in unseen_files})
     c1, c2 = st.columns(2)
     with c1:
         uploads = st.file_uploader("Upload vendor invoice PDFs", type="pdf", accept_multiple_files=True)
     with c2:
-        picked = st.multiselect("Or choose from the test set", test_files + ext_files)
+        picked = st.multiselect("Or choose from the test set", test_files + ext_files + unseen_files,
+                                help="u1-u6 are unseen invoices: new layouts, no cached AI results")
         st.caption("Expected outcomes for each test file are in `test_invoices/EXPECTED.md`.")
 
     b1, b2, b3 = st.columns([1, 1.6, 1.6])
