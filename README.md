@@ -128,7 +128,7 @@ Built deliberately small; each item has a path to production.
 | Clustering "Other" review reasons | Stored as free text | LLM groups them into candidate new reason codes |
 | Vendor channel for corrected invoices | Corrected resend with the same number is detected and processed | Vendor portal to withdraw or replace an invoice |
 | Learning from reviewer decisions | **Built:** a reviewer can confirm a close vendor name as an alias (explicit tick, one alias, logged, removable) | Bank-detail changes with maker-checker. **Patterns:** at least 7 matching decisions for the same vendor or PO and reason produce a *suggested* rule change for a finance lead to accept or decline, never an automatic one |
-| Auth / roles | Single reviewer name field | SSO, maker-checker for large amounts |
+| Separate logins per AP reviewer | A free-text "Reviewer" name on each decision, which anyone can type | Each AP person signs in (SSO); every approval, rejection, alias and reset is recorded against their account, so it is always clear who made which change and it cannot be confused later. Adds roles and maker-checker for large amounts and bank changes |
 
 Test data (POs, vendors, invoices) is self-created as the brief allows. All names, GSTINs and bank details are fictional.
 
