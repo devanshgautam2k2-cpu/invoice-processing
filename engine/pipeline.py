@@ -6,6 +6,7 @@ is sent back to a vendor unless reading confidence is High.
 """
 
 import json
+import re
 import threading
 from collections import defaultdict
 from datetime import date
@@ -42,6 +43,7 @@ REASONS = {
     "H11": ("human_review", "Implied tax rate is not a valid GST rate"),
     "H12": ("human_review", "A field could not be verified against the document text"),
     "H13": ("human_review", "AI service unavailable; invoice could not be read"),
+    "H14": ("human_review", "Not a tax invoice (quotation, proforma, credit note, ...); read and passed to a human"),
 }
 SEVERITY = {"approve": 1, "human_review": 2, "send_back": 3}
 OUTCOME_STATUS = {"approve": "approved", "human_review": "human_review", "send_back": "sent_back"}
@@ -86,6 +88,7 @@ class Run:
         self.confidence = "High"
         self.confidence_reasons: list[str] = []
         self.facts: dict = {}
+        self.force_human = False  # a non-invoice: never sent back, a human decides
 
     def emit(self, stage: str, status: str, message: str, data=None):
         db.log(self.c, self.id, stage, status, message, data)
@@ -140,7 +143,7 @@ def _process(invoice_id: int, on_event=None) -> dict:
         inv = db.invoice(conn, invoice_id)
         ctx = {"inv": inv}
         try:
-            for stage_fn in (stage_receive, stage_read, stage_confidence, stage_required,
+            for stage_fn in (stage_receive, stage_read, stage_document_type, stage_confidence, stage_required,
                              stage_duplicates, stage_po, stage_vendor, stage_lines):
                 stage_fn(run, ctx)
         except Stop:
@@ -173,18 +176,36 @@ def stage_read(run: Run, ctx: dict):
              "Text-based PDF: text read directly from the file" if kind == "text"
              else "Scanned image: no text layer, the AI reads the picture",
              {"source_type": kind, "text_chars": len(text.strip())})
-    extracted, cached = llm.extract_invoice(inv["pdf"], inv["file_hash"])
+    extracted, cached = llm.extract_invoice(inv["pdf"], inv["file_hash"], scanned=kind == "scanned")
     n = checks.normalise(extracted)
     ctx["extracted"], ctx["n"] = extracted, n
     run.c.execute(
         "UPDATE invoices SET source_type=?, extracted=?, vendor_invoice_number=?, invoice_date=?, po_number=?, grand_total=? WHERE id=?",
         (kind, json.dumps(extracted), n["invoice_number"], str(n["invoice_date"] or ""), n["po_number"],
          n["grand_total"], run.id))
-    run.emit("2 Read", "pass", f"AI extracted {len(n['lines'])} line(s)" + (" (cached)" if cached else ""), {
+    model = checks.config()["llm"]["scan_extraction_model" if kind == "scanned" else "extraction_model"]
+    run.emit("2 Read", "pass", f"AI ({model}) extracted {len(n['lines'])} line(s)" + (" (cached)" if cached else ""), {
         "vendor": n["vendor_name"], "invoice_number": n["invoice_number"], "invoice_date": n["invoice_date_raw"],
         "po_number": n["po_number"], "grand_total": n["grand_total"],
         "lines": [{k: l[k] for k in ("description", "qty", "unit_price", "amount")} for l in n["lines"]],
     })
+
+
+def stage_document_type(run: Run, ctx: dict):
+    """Only a tax invoice is processed to a decision; anything else is read in full and handed to a human."""
+    S = "2 Read"
+    doc_type = ctx["extracted"].get("document_type") or "other"
+    quote = (ctx["extracted"].get("document_type_quote") or "").strip()
+    ctx["document_type"] = doc_type
+    if doc_type in checks.config()["document_types"]["proceed"]:
+        run.emit(S, "pass", f"Document type: {doc_type.replace('_', ' ')}" + (f' (read from "{quote}")' if quote else ""))
+        return
+    run.force_human = True
+    run.flag("H14", S, f"This document is a {doc_type.replace('_', ' ')}, not a tax invoice"
+                       + (f' (it says "{quote}")' if quote else "")
+                       + ". Everything readable was collected; a person decides what to do with it.")
+    run.emit(S, "warn", f"Not a tax invoice: {doc_type.replace('_', ' ')}"
+                        + (f' (read from "{quote}")' if quote else "") + "; it will go to a human, never back to the vendor")
 
 
 def stage_confidence(run: Run, ctx: dict):
@@ -192,6 +213,8 @@ def stage_confidence(run: Run, ctx: dict):
     n = ctx["n"]
     if ctx["source_type"] == "scanned":
         run.low_confidence("scanned image, not a text PDF")
+        run.flag("H3", S, "Scanned invoice: figures were read from an image and cannot be verified "
+                          "against a text layer; please confirm what the AI read.")
     arith = checks.arithmetic_checks(n)
     failed = [a for a in arith if not a["ok"]]
     for a in arith:
@@ -210,9 +233,6 @@ def stage_confidence(run: Run, ctx: dict):
     notes = (ctx["extracted"].get("reader_notes") or "").strip()
     if notes:
         run.emit(S, "info", f"Reader notes: {notes}")
-    if ctx["source_type"] == "scanned":
-        run.flag("H3", S, "Scanned invoice: figures were read from an image and cannot be verified "
-                          "against a text layer; please confirm what the AI read.")
     run.emit(S, "pass" if run.confidence == "High" else "warn",
              f"Reading confidence: {run.confidence}" +
              (f" ({'; '.join(run.confidence_reasons)})" if run.confidence_reasons else
@@ -334,6 +354,10 @@ def stage_po(run: Run, ctx: dict):
     S = "6 PO"
     n = ctx["n"]
     p = db.po(run.c, n["po_number"])
+    if not p and n["po_number"]:
+        p = _po_by_digits(run, n["po_number"])
+        if p:
+            n["po_number"] = p["po_id"]
     if not p:
         run.flag("S9", S, f"PO number {n['po_number']} not found")
         run.emit(S, "fail", f"PO {n['po_number']} not found")
@@ -351,6 +375,24 @@ def stage_po(run: Run, ctx: dict):
         "po_date": p["po_date"],
         "lines": [{"line": l["line_id"], "description": l["description"], "ordered": l["qty_ordered"],
                    "remaining": l["qty_remaining"], "unit_price": l["unit_price"]} for l in p["lines"]]})
+
+
+def _po_by_digits(run: Run, written: str) -> dict | None:
+    """'P.O. No 1011', 'PO 1011', '1011' -> PO-1011: same digits, and the PO must belong to this invoice's vendor."""
+    digits = re.sub(r"\D", "", written)
+    if not digits:
+        return None
+    same = [r["po_id"] for r in run.c.execute("SELECT po_id FROM pos") if re.sub(r"\D", "", r["po_id"]) == digits]
+    vendor_id = db.invoice(run.c, run.id)["vendor_id"]  # identified in stage 5
+    if len(same) != 1:
+        return None
+    p = db.po(run.c, same[0])
+    if p["vendor_id"] != vendor_id:
+        run.emit("6 PO", "info", f"'{written}' has the digits of {p['po_id']}, but that PO belongs to another vendor; not matched")
+        return None
+    run.emit("6 PO", "info", f"PO written as '{written}' matched to {p['po_id']} (same digits, same vendor)")
+    run.c.execute("UPDATE invoices SET po_number=? WHERE id=?", (p["po_id"], run.id))
+    return p
 
 
 def stage_vendor(run: Run, ctx: dict):
@@ -395,10 +437,13 @@ def stage_lines(run: Run, ctx: dict):
     po_lines = {l["line_id"]: l for l in p["lines"]}
 
     # Date and tax sanity
-    ok, msg = checks.date_check(n["invoice_date"], date.fromisoformat(p["po_date"]))
-    run.emit(S, "pass" if ok else "fail", f"Date check: {msg}")
-    if not ok:
-        run.flag("H10", S, msg.capitalize())
+    if n["invoice_date"] is None:
+        run.emit(S, "info", "Date check skipped: no invoice date was read (already flagged as a missing field)")
+    else:
+        ok, msg = checks.date_check(n["invoice_date"], date.fromisoformat(p["po_date"]))
+        run.emit(S, "pass" if ok else "fail", f"Date check: {msg}")
+        if not ok:
+            run.flag("H10", S, msg.capitalize())
     ok, implied, msg = checks.tax_rate_check(n)
     run.emit(S, "pass" if ok else "fail", f"Tax check: {msg}")
     if not ok:
@@ -487,14 +532,15 @@ def _flag_band(run: Run, stage: str, band: dict, what: str, discounts: list[floa
 
 # ---------------------------------------------------------------- decide, explain, record
 
-def combine(findings: list[dict], confidence: str) -> tuple[str, str]:
-    """Most severe outcome wins; a send-back needs High reading confidence, otherwise a human sees it."""
+def combine(findings: list[dict], confidence: str, force_human: bool = False) -> tuple[str, str]:
+    """Most severe outcome wins; a send-back needs High reading confidence and a real tax invoice,
+    otherwise a human sees it. Certain findings (a byte-identical file) are exempt."""
     if not findings:
         return "approve", "A1"
     effective = []
     for f in findings:
         outcome = f["outcome"]
-        if outcome == "send_back" and confidence != "High" and not f.get("certain"):
+        if outcome == "send_back" and (confidence != "High" or force_human) and not f.get("certain"):
             outcome = "human_review"
         effective.append((SEVERITY[outcome], outcome, f["code"]))
     top = max(e[0] for e in effective)
@@ -504,7 +550,7 @@ def combine(findings: list[dict], confidence: str) -> tuple[str, str]:
 
 
 def decide_and_record(run: Run, ctx: dict) -> dict:
-    outcome, code = combine(run.findings, run.confidence)
+    outcome, code = combine(run.findings, run.confidence, run.force_human)
     run.emit("9 Decide", {"approve": "pass", "human_review": "warn", "send_back": "fail"}[outcome],
              f"Outcome: {outcome.replace('_', ' ').upper()} ({code}: {REASONS[code][1]})",
              {"findings": run.findings, "reading_confidence": run.confidence})
@@ -520,6 +566,7 @@ def decide_and_record(run: Run, ctx: dict) -> dict:
         "outcome": outcome,
         "reason_code": code,
         "reason": REASONS[code][1],
+        "document_type": ctx.get("document_type"),
         "reading_confidence": run.confidence,
         "confidence_reasons": run.confidence_reasons,
         "issues": [{"code": f["code"], "message": f["message"]} for f in run.findings],

@@ -443,6 +443,16 @@ Added reason codes:
 | H11 | Human review | Implied tax rate is not a valid GST rate |
 | H12 | Human review | A field could not be verified against the document text (source quote failed) |
 | H13 | Human review | AI service unavailable; invoice could not be read |
+| H14 | Human review | Not a tax invoice (quotation, proforma, credit note, ...): read in full and passed to a human, never sent back |
+
+## Added after testing on unseen invoices
+
+Six invoices in layouts the system was never tuned on (`test_invoices/unseen/`) were run on the live app. Three gaps were found and fixed:
+
+- **Document type.** The AI now states what the document is (tax invoice, bill of supply, proforma, quotation, credit or debit note, purchase order, delivery challan, receipt, other) and quotes the words that show it. A tax invoice or bill of supply is processed as before. Anything else is still read in full, every check still runs, and it goes to a human (H14), never back to the vendor: the reviewer may have context we don't. Found because a quotation whose items matched the PO exactly was approved.
+- **PO number written without its prefix.** When "P.O. No: 1011" doesn't match a PO exactly, it is matched on its digits (PO-1011), but only if that PO belongs to the invoice's vendor. Found because a valid invoice was sent back as "PO not found".
+- **Model per document kind.** Text PDFs are read by Claude Haiku 4.5, then every key field is verified against the PDF's text. Image-only PDFs (scans, phone photos) are read by Claude Sonnet 5.5: nothing on an image can be verified, and in testing Haiku misread a GSTIN on a scan that Sonnet and Opus 5.5 read correctly. Scans lead with H3, and are always checked by a person.
+- **Amounts with a currency prefix.** "Rs.4,500.00" is now read as 4,500; the dot after "Rs" was being taken for a decimal point.
 
 ## Build and demo reliability
 

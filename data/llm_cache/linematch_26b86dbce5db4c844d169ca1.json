@@ -1,9 +1,0 @@
-{
-  "matches": [
-    {
-      "invoice_line": 1,
-      "po_line_id": "PO-1007-L1",
-      "reason": "Both describe warehouse loading and unloading labour charged on a per-day basis."
-    }
-  ]
-}

@@ -10,6 +10,7 @@ Two runs, mirroring EXPECTED.md:
      approve, and the POs must end in the state table's statuses.
   B. Core set + extended set in one go (03a and 04 left awaiting review): every
      file's outcome and reason code.
+  C. Unseen set alone on a fresh database.
 """
 
 import os
@@ -89,9 +90,10 @@ def main() -> int:
     expected = expected_outcomes()
     core = sorted(TEST_DIR.glob("*.pdf"))
     extended = sorted((TEST_DIR / "extended").glob("*.pdf"))
+    unseen = sorted((TEST_DIR / "unseen").glob("*.pdf"))
     rep = Report()
 
-    missing = [f.name for f in core + extended if f.name not in expected]
+    missing = [f.name for f in core + extended + unseen if f.name not in expected]
     rep.check("every test PDF has a row in EXPECTED.md", missing, [])
 
     print("\nRun A: core set, then the reviewer approves 03a and 04")
@@ -115,6 +117,12 @@ def main() -> int:
     print("\nRun B: core + extended set (03a and 04 left awaiting review)")
     results = run(core + extended)
     for f in core + extended:
+        r = results.get(f.name, {})
+        rep.check(f.name, (r.get("outcome"), r.get("reason_code")), expected.get(f.name))
+
+    print("\nRun C: unseen set on a fresh database")
+    results = run(unseen)
+    for f in unseen:
         r = results.get(f.name, {})
         rep.check(f.name, (r.get("outcome"), r.get("reason_code")), expected.get(f.name))
 

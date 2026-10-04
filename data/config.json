@@ -52,9 +52,17 @@
   "llm": {
     "provider": "anthropic",
     "extraction_model": "claude-haiku-4-5",
+    "scan_extraction_model": "claude-sonnet-5-5",
     "line_match_model": "claude-haiku-4-5",
     "temperature": 0,
     "max_retries": 2,
-    "note": "Haiku 4.5 for both calls: cheap, reads PDFs and images, and still accepts temperature 0."
+    "note": "Haiku 4.5 reads text PDFs (every key field is then verified against the PDF text); Sonnet 5.5 reads image-only PDFs, where nothing can be verified and Haiku misread a GSTIN in testing. Temperature 0 is sent to Haiku only: Sonnet 5.5 rejects non-default sampling settings."
+  },
+  "document_types": {
+    "proceed": [
+      "tax_invoice",
+      "bill_of_supply"
+    ],
+    "note": "The AI classifies every document. Anything else (quotation, proforma, credit note, ...) is read in full and passed to a human (H14), never sent back."
   }
 }

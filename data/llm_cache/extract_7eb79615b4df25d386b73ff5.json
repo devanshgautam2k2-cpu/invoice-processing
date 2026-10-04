@@ -1,0 +1,82 @@
+{
+  "document_type": "tax_invoice",
+  "document_type_quote": "INVOICE",
+  "vendor_name": {
+    "value": "APEX TECH Supplies Pvt Ltd",
+    "quote": "APEX TECH Supplies Pvt Ltd"
+  },
+  "vendor_gstin": {
+    "value": "27AABCA1234F1Z5",
+    "quote": "GSTIN 27AABCA1234F1Z5"
+  },
+  "invoice_number": {
+    "value": "ATS/26-27/0477",
+    "quote": "Invoice # ATS/26-27/0477"
+  },
+  "invoice_date": {
+    "value": "Oct 2, 2026",
+    "quote": "Date Oct 2, 2026"
+  },
+  "po_number": {
+    "value": "1011",
+    "quote": "P.O. No: 1011"
+  },
+  "buyer_name": {
+    "value": "Kestrel Retail Pvt Ltd",
+    "quote": "Kestrel Retail Pvt Ltd"
+  },
+  "buyer_gstin": {
+    "value": "27AAKCK4321L1Z9",
+    "quote": "GSTIN 27AAKCK4321L1Z9"
+  },
+  "bank_name": {
+    "value": "HDFC Bank",
+    "quote": "Make all payments to HDFC Bank"
+  },
+  "bank_account_number": {
+    "value": "50100234564417",
+    "quote": "account 50100234564417"
+  },
+  "bank_ifsc": {
+    "value": "HDFC0001234",
+    "quote": "IFSC HDFC0001234"
+  },
+  "currency": {
+    "value": "INR",
+    "quote": "TOTAL (INR)"
+  },
+  "subtotal": {
+    "value": "135,200.00",
+    "quote": "SUBTOTAL 135,200.00"
+  },
+  "grand_total": {
+    "value": "159,536.00",
+    "quote": "TOTAL (INR) 159,536.00"
+  },
+  "line_items": [
+    {
+      "description": "Dell P2425H 24in monitor",
+      "hsn": "",
+      "quantity": "8",
+      "unit_price": "16,900.00",
+      "amount": "135,200.00",
+      "quote": "8 Dell P2425H 24in monitor 16,900.00 135,200.00"
+    }
+  ],
+  "tax_lines": [
+    {
+      "label": "CGST",
+      "rate_percent": "9%",
+      "amount": "12,168.00",
+      "quote": "CGST 9% 12,168.00"
+    },
+    {
+      "label": "SGST",
+      "rate_percent": "9%",
+      "amount": "12,168.00",
+      "quote": "SGST 9% 12,168.00"
+    }
+  ],
+  "discounts": [],
+  "reader_notes": ""
+}

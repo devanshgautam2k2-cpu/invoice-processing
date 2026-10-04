@@ -144,7 +144,8 @@ def fields_table(inv: dict) -> pd.DataFrame:
     if inv["source_type"] == "text":
         for q in checks.quote_checks(ex, pdf_reader.text_layer(inv["pdf"])):
             verified[q["field"]] = "✅" if q["ok"] else "❌"
-    rows = []
+    rows = [{"Field": "document type", "Value read": (ex.get("document_type") or "-").replace("_", " "),
+             "Read from": ex.get("document_type_quote") or "", "Verified in text": ""}]
     for f in ["vendor_name", "vendor_gstin", "invoice_number", "invoice_date", "po_number", "subtotal", "grand_total",
               "bank_name", "bank_account_number", "bank_ifsc", "buyer_name", "buyer_gstin"]:
         v = ex.get(f) or {}

@@ -1,3 +1,0 @@
-{
-  "note": "Send invoice INT-0014 back to Blue River Logistics Pvt Ltd because the required field vendor_gstin is missing. The invoice total of Rs 14,160.00 matches the expected amount, but the missing GST identification number must be provided before payment can be processed. Request the vendor resubmit the invoice with the complete vendor_gstin field."
-}

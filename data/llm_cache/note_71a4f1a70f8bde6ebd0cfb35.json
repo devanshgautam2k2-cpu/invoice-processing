@@ -1,3 +1,0 @@
-{
-  "note": "Invoice INT-0022 from Apex Tech Supplies Pvt Ltd requires human review because the invoice date 2026-09-10 is before the PO date 2026-09-21, which falls outside the allowed window. The invoice total of Rs 1,59,536.00 matches the expected amount. Please verify the invoice date with the vendor before processing payment."
-}

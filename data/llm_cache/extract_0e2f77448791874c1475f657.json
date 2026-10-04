@@ -1,0 +1,82 @@
+{
+  "document_type": "tax_invoice",
+  "document_type_quote": "GST INVOICE",
+  "vendor_name": {
+    "value": "DECCAN FURNITURE WORKS",
+    "quote": "DECCAN FURNITURE WORKS"
+  },
+  "vendor_gstin": {
+    "value": "27AAEFD3456J1Z4",
+    "quote": "GSTIN 27AAEFD3456J1Z4"
+  },
+  "invoice_number": {
+    "value": "DFW-INV-2240",
+    "quote": "Invoice # DFW-INV-2240"
+  },
+  "invoice_date": {
+    "value": "1 October 2026",
+    "quote": "Date 1 October 2026"
+  },
+  "po_number": {
+    "value": "PO-1010",
+    "quote": "Purchase Order PO-1010"
+  },
+  "buyer_name": {
+    "value": "Kestrel Retail Pvt Ltd",
+    "quote": "Kestrel Retail Pvt Ltd"
+  },
+  "buyer_gstin": {
+    "value": "27AAKCK4321L1Z9",
+    "quote": "GSTIN: 27AAKCK4321L1Z9"
+  },
+  "bank_name": {
+    "value": "HDFC Bank",
+    "quote": "Kindly remit to HDFC Bank"
+  },
+  "bank_account_number": {
+    "value": "50200087719932",
+    "quote": "A/c 50200087719932"
+  },
+  "bank_ifsc": {
+    "value": "HDFC0009876",
+    "quote": "IFSC HDFC0009876"
+  },
+  "currency": {
+    "value": "",
+    "quote": ""
+  },
+  "subtotal": {
+    "value": "1,58,000.00",
+    "quote": "Taxable Amount 1,58,000.00"
+  },
+  "grand_total": {
+    "value": "1,86,440.00",
+    "quote": "TOTAL 1,86,440.00"
+  },
+  "line_items": [
+    {
+      "description": "Steel Storage Cabinet DF-SC4 (4 shelves), grey",
+      "hsn": "9403",
+      "quantity": "10 Nos",
+      "unit_price": "15,800.00",
+      "amount": "1,58,000.00",
+      "quote": "Steel Storage Cabinet DF-SC4 (4 shelves), grey 9403 10 Nos 15,800.00 1,58,000.00"
+    }
+  ],
+  "tax_lines": [
+    {
+      "label": "CGST @ 9%",
+      "rate_percent": "9%",
+      "amount": "14,220.00",
+      "quote": "CGST @ 9% 14,220.00"
+    },
+    {
+      "label": "SGST @ 9%",
+      "rate_percent": "9%",
+      "amount": "14,220.00",
+      "quote": "SGST @ 9% 14,220.00"
+    }
+  ],
+  "discounts": [],
+  "reader_notes": ""
+}

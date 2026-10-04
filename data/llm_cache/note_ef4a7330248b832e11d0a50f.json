@@ -1,0 +1,3 @@
+{
+  "note": "Invoice INT-0024 from Blue River Logistics Pvt Ltd requires human review because the PO number could not be verified against the document text due to low reading confidence. The invoice total of Rs 67,260.00 matches the expected amount, but the document quality or clarity prevented automated verification of the PO reference. Please manually confirm that PO-1005 is correctly referenced in vendor invoice BRL/PNQ/2026/0317 before processing payment."
+}

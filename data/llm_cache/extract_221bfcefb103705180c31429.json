@@ -1,0 +1,82 @@
+{
+  "document_type": "quotation",
+  "document_type_quote": "QUOTATION",
+  "vendor_name": {
+    "value": "Apex Tech Supplies Pvt Ltd",
+    "quote": "Apex Tech Supplies Pvt Ltd"
+  },
+  "vendor_gstin": {
+    "value": "27AABCA1234F1Z5",
+    "quote": "GSTIN 27AABCA1234F1Z5"
+  },
+  "invoice_number": {
+    "value": "",
+    "quote": ""
+  },
+  "invoice_date": {
+    "value": "",
+    "quote": ""
+  },
+  "po_number": {
+    "value": "PO-1006",
+    "quote": "Against PO PO-1006"
+  },
+  "buyer_name": {
+    "value": "Kestrel Retail Pvt Ltd",
+    "quote": "Prepared for Kestrel Retail Pvt Ltd"
+  },
+  "buyer_gstin": {
+    "value": "",
+    "quote": ""
+  },
+  "bank_name": {
+    "value": "",
+    "quote": ""
+  },
+  "bank_account_number": {
+    "value": "",
+    "quote": ""
+  },
+  "bank_ifsc": {
+    "value": "",
+    "quote": ""
+  },
+  "currency": {
+    "value": "",
+    "quote": ""
+  },
+  "subtotal": {
+    "value": "98,000.00",
+    "quote": "HP LaserJet Pro M404dn 4 24,500.00 98,000.00"
+  },
+  "grand_total": {
+    "value": "115,640.00",
+    "quote": "Quoted total 115,640.00"
+  },
+  "line_items": [
+    {
+      "description": "HP LaserJet Pro M404dn",
+      "hsn": "",
+      "quantity": "4",
+      "unit_price": "24,500.00",
+      "amount": "98,000.00",
+      "quote": "HP LaserJet Pro M404dn 4 24,500.00 98,000.00"
+    }
+  ],
+  "tax_lines": [
+    {
+      "label": "CGST 9%",
+      "rate_percent": "9%",
+      "amount": "8,820.00",
+      "quote": "CGST 9% 8,820.00"
+    },
+    {
+      "label": "SGST 9%",
+      "rate_percent": "9%",
+      "amount": "8,820.00",
+      "quote": "SGST 9% 8,820.00"
+    }
+  ],
+  "discounts": [],
+  "reader_notes": ""
+}

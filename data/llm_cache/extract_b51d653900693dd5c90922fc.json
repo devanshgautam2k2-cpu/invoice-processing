@@ -1,0 +1,76 @@
+{
+  "document_type": "tax_invoice",
+  "document_type_quote": "Invoice",
+  "vendor_name": {
+    "value": "Northwind Electronics LLP",
+    "quote": "Northwind Electronics LLP"
+  },
+  "vendor_gstin": {
+    "value": "29AAJFN9012H1Z8",
+    "quote": "GSTIN 29AAJFN9012H1Z8"
+  },
+  "invoice_number": {
+    "value": "NW/INV/2026-27/0077",
+    "quote": "Invoice NW/INV/2026-27/0077"
+  },
+  "invoice_date": {
+    "value": "02.10.2026",
+    "quote": "Date 02.10.2026"
+  },
+  "po_number": {
+    "value": "PO-1008",
+    "quote": "Order Reference PO-1008"
+  },
+  "buyer_name": {
+    "value": "Kestrel Retail Pvt Ltd",
+    "quote": "Customer Kestrel Retail Pvt Ltd"
+  },
+  "buyer_gstin": {
+    "value": "27AAKCK4321L1Z9",
+    "quote": "Customer GSTIN 27AAKCK4321L1Z9"
+  },
+  "bank_name": {
+    "value": "Axis Bank",
+    "quote": "Pay to Axis Bank"
+  },
+  "bank_account_number": {
+    "value": "918020043053051",
+    "quote": "918020043053051"
+  },
+  "bank_ifsc": {
+    "value": "UTIB0007890",
+    "quote": "UTIB0007890"
+  },
+  "currency": {
+    "value": "₹",
+    "quote": "₹1,44,000.00"
+  },
+  "subtotal": {
+    "value": "₹1,44,000.00",
+    "quote": "Subtotal ₹1,44,000.00"
+  },
+  "grand_total": {
+    "value": "₹1,69,920.00",
+    "quote": "Total due ₹1,69,920.00"
+  },
+  "line_items": [
+    {
+      "description": "Jabra Evolve2 30 headset (wired, USB-A)",
+      "hsn": "",
+      "quantity": "30 pcs",
+      "unit_price": "₹4,800.00",
+      "amount": "₹1,44,000.00",
+      "quote": "Jabra Evolve2 30 headset (wired, USB-A) 30 pcs ₹4,800.00 ₹1,44,000.00"
+    }
+  ],
+  "tax_lines": [
+    {
+      "label": "IGST",
+      "rate_percent": "18%",
+      "amount": "₹25,920.00",
+      "quote": "IGST 18% ₹25,920.00"
+    }
+  ],
+  "discounts": [],
+  "reader_notes": ""
+}

@@ -1,0 +1,76 @@
+{
+  "document_type": "tax_invoice",
+  "document_type_quote": "INVOICE",
+  "vendor_name": {
+    "value": "Blue River Logistics Pvt Ltd",
+    "quote": "Blue River Logistics Pvt Ltd | B-27, Okhla Industrial Area Phase II, New Delhi 110020"
+  },
+  "vendor_gstin": {
+    "value": "07AABCB7890K1Z1",
+    "quote": "Supplier GSTIN 07AABCB7890K1Z1"
+  },
+  "invoice_number": {
+    "value": "BRL/PNQ/2026/0305",
+    "quote": "Bill No. BRL/PNQ/2026/0305"
+  },
+  "invoice_date": {
+    "value": "26 Sep 2026",
+    "quote": "Dated 26 Sep 2026"
+  },
+  "po_number": {
+    "value": "PO-1007",
+    "quote": "Your Ref PO-1007"
+  },
+  "buyer_name": {
+    "value": "Kestrel Retail Pvt Ltd",
+    "quote": "Billed To Kestrel Retail Pvt Ltd"
+  },
+  "buyer_gstin": {
+    "value": "27AAKCK4321L1Z9",
+    "quote": "Buyer GSTIN 27AAKCK4321L1Z9"
+  },
+  "bank_name": {
+    "value": "Kotak Mahindra Bank",
+    "quote": "Remit to Blue River Logistics Pvt Ltd, Kotak Mahindra Bank"
+  },
+  "bank_account_number": {
+    "value": "4612032208",
+    "quote": "Account 4612032208"
+  },
+  "bank_ifsc": {
+    "value": "KKBK0002345",
+    "quote": "IFSC KKBK0002345"
+  },
+  "currency": {
+    "value": "INR",
+    "quote": "Amount Payable (INR)"
+  },
+  "subtotal": {
+    "value": "22,500.00",
+    "quote": "Taxable Value 22,500.00"
+  },
+  "grand_total": {
+    "value": "27,550.00",
+    "quote": "Amount Payable (INR) 27,550.00"
+  },
+  "line_items": [
+    {
+      "description": "Warehouse loading/unloading labour, per day",
+      "hsn": "9967",
+      "quantity": "5",
+      "unit_price": "4,500.00",
+      "amount": "22,500.00",
+      "quote": "Warehouse loading/unloading labour, per day 9967 5 4,500.00 22,500.00"
+    }
+  ],
+  "tax_lines": [
+    {
+      "label": "IGST @ 18%",
+      "rate_percent": "18%",
+      "amount": "4,050.00",
+      "quote": "IGST @ 18% 4,050.00"
+    }
+  ],
+  "discounts": [],
+  "reader_notes": ""
+}

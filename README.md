@@ -25,6 +25,8 @@ The app has three pages:
 | **Human review** | POs on hold with an "on hold since" timer and how long each waiting invoice has waited, the waiting queue, and the review screen: the document beside what the AI read (with the exact text it read each field from), two separate indicators (*Reading confidence* vs *Match vs PO*), the findings, and approve or reject with a reason code and **required notes**. On approval the reviewer confirms which PO lines and quantities the invoice bills (prefilled with the system's matches, or chosen by hand when it could not match), and sees whether the PO will become partially or fully invoiced. A decision releases the hold and reruns waiting invoices immediately. |
 | **Dashboard** | Invoices processed, auto-approval and exception rates, value approved, overbilling and duplicates caught, status and reason breakdowns, filterable history with a drill-down into any invoice's decision and audit trail, and PO billing progress. |
 
+Unseen invoices (`test_invoices/unseen/`, new layouts, a phone photo, a two-page invoice, a quotation) are in the test picker too; see `EXPECTED.md`.
+
 `python reset_demo.py --run` resets and processes the seven core test invoices from the command line; add `--extended` for the 17 edge-case invoices (one per remaining reason code; see `test_invoices/EXPECTED.md`). In the app, use **Run core demo set**, then **Run edge-case set**.
 
 ### Regression test
@@ -44,7 +46,7 @@ Runs all 24 test invoices on a throwaway database, offline (cached AI results on
    - 04: scanned, human review (H3)
    - 05: exact duplicate, sent back (S2)
 2. **Human review → INT-0004 → Approve (R-A2)**. PO-1003 is released, and 03b reruns live and is approved.
-3. **INT-0006 (scan)**: Reading *Low* and Match vs PO *Failed* side by side. The AI misread one character of the GSTIN on the scan, which is why scans never go straight back to a vendor.
+3. **INT-0006 (scan)**: Reading *Low* and Match vs PO *Failed* side by side. Scans never go straight back to a vendor: in testing Haiku misread one character of the GSTIN on this scan, which is why scans are now read by Sonnet 5.5 and always checked by a person.
 4. **Dashboard**: open any row for its full audit trail.
 
 ## How an invoice is processed
@@ -54,11 +56,11 @@ Nine stages, strictly one invoice at a time. Every stage can exit early with a r
 | # | Stage | Who | What |
 |---|---|---|---|
 | 1 | Receive | code | Internal ID (`INT-0001`) and SHA-256 file fingerprint |
-| 2 | Read | code + **LLM** | Text PDF or scan? Claude transcribes every field **with the exact text it read it from**; "not found" instead of guesses. Extraction never sees the PO. |
+| 2 | Read | code + **LLM** | Text PDF or scan? Claude transcribes every field **with the exact text it read it from**; "not found" instead of guesses. Extraction never sees the PO. It also says what the document is: anything but a tax invoice or bill of supply is read in full and goes to a human (H14), never back to the vendor. |
 | 3 | Reading confidence | code | Qty × price = amount; lines = subtotal; subtotal + tax = total; each key field's quote is found in the PDF's text layer. Scans are always Low. |
 | 4 | Required fields | code | 7 fields. Missing: send back (S1) if confidence is High, else human (H3). |
 | 5 | Duplicates | code | Same file (S2, or S10 if the original was rejected); same vendor + number + amount as an approved invoice (S2); number already approved, different amount (S3); unchanged resend of a rejected invoice (S10), while a changed one is processed as a corrected version; number one character off (H9); same number still under review → wait |
-| 6 | PO | code | Exists (S9)? Fully invoiced (S4)? On hold → **wait and rerun after the decision** |
+| 6 | PO | code | Exists (S9)? A PO written without its prefix ("P.O. 1011") is matched on its digits if it belongs to the same vendor. Fully invoiced (S4)? On hold → **wait and rerun after the decision** |
 | 7 | Vendor | code | Name vs PO vendor and aliases, rapidfuzz ≥90 pass, 75–90 human (H6), <75 S7; bank account + IFSC vs vendor master (H7); GSTIN (informational) |
 | 8 | Lines | **LLM** + code | Claude pairs each invoice line with a PO line, **choosing only from that PO's line IDs** or UNMATCHED. Code checks quantity ≤ remaining (S5), every unit price and the expected total against the tolerance bands, the invoice date (PO date to PO date + 3 months, H10) and the implied GST rate. |
 | 9 | Decide | code | Most severe wins. **Nothing goes back to a vendor unless reading confidence is High**; otherwise a human sees it first. One exception: a byte-identical resend (same file hash) is a duplicate whatever the reading quality. |
@@ -101,7 +103,7 @@ tests/test_regression.py   all 24 invoices vs EXPECTED.md, offline
 
 ## Choices worth knowing
 
-- **Model: Claude Haiku 4.5** for all three calls: cheap, reads PDFs and images, and accepts temperature 0. Swap models in `config.json`.
+- **Models:** Claude Haiku 4.5 reads text PDFs (every key field is then verified against the PDF text), pairs lines and writes notes. **Claude Sonnet 5.5 reads image-only PDFs** (scans, phone photos): in testing Haiku misread a GSTIN on a scan that Sonnet and Opus 5.5 read correctly. Swap models in `config.json`.
 - **Structured outputs** (`output_config.format` JSON schema) for every call, so the response always parses. The line matcher's `po_line_id` is an enum of the PO's own line IDs plus `UNMATCHED`, so it cannot invent a match.
 - **Cache keyed by input hash** (`data/llm_cache/`, committed). The rehearsed demo gives identical results and works even if the API is slow or down. Delete the folder to force fresh reads.
 - **Graceful degradation:** if the AI cannot be reached, the invoice goes to human review (H13) with a clear message. The app never crashes on it.

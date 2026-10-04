@@ -28,14 +28,18 @@ def inr(x: float, prefix: str = "Rs ") -> str:
 
 
 def parse_amount(s: str | None) -> float | None:
-    """'Rs. 9,41,640.00' -> 941640.0; '' -> None."""
+    """'Rs. 9,41,640.00' / 'Rs.4,500.00' / '₹1,69,920.00' / 'INR 2,400' -> number; '' -> None.
+
+    Takes the first number in the string, so a currency prefix ending in a dot ('Rs.') is never
+    mistaken for a decimal point.
+    """
     if not s:
         return None
-    cleaned = re.sub(r"[^\d.\-]", "", s.replace(",", ""))
-    if cleaned in ("", ".", "-"):
+    m = re.search(r"-?\d[\d,]*(?:\.\d+)?", s)
+    if not m:
         return None
     try:
-        return round(float(cleaned), 2)
+        return round(float(m.group().replace(",", "")), 2)
     except ValueError:
         return None
 

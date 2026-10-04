@@ -1,0 +1,14 @@
+{
+  "matches": [
+    {
+      "invoice_line": 1,
+      "po_line_id": "PO-1003-L1",
+      "reason": "Both describe JK Copier A4 Paper 75 GSM in 500-sheet reams, identical product specifications."
+    },
+    {
+      "invoice_line": 2,
+      "po_line_id": "PO-1003-L2",
+      "reason": "Both describe the Kangaro HD-45 Heavy Duty Stapler, same product with matching specifications."
+    }
+  ]
+}

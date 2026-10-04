@@ -1,3 +1,0 @@
-{
-  "note": "Invoice INT-0004 from Shree Ganesh Office Solutions requires human review because the total is overbilled above the approve limit but within the 7% threshold. The unit price on PO-1003-L1 is Rs 302.00 against the PO price of Rs 290.00, a 4.14% increase totaling Rs 2,400.00 in overcharge. The invoice total of Rs 71,272.00 exceeds the expected amount of Rs 68,440.00 by Rs 2,832.00 (4.14%). Please review the pricing variance and determine whether to approve, request a credit note, or reject the invoice."
-}

@@ -1,0 +1,76 @@
+{
+  "document_type": "tax_invoice",
+  "document_type_quote": "TAX INVOICE",
+  "vendor_name": {
+    "value": "BLUE RIVER LOGISTICS PVT LTD",
+    "quote": "BLUE RIVER LOGISTICS PVT LTD"
+  },
+  "vendor_gstin": {
+    "value": "07AABCB7890K1Z1",
+    "quote": "GSTIN: 07AABCB7890K1Z1"
+  },
+  "invoice_number": {
+    "value": "BRL/PNQ/2026/0340",
+    "quote": "Invoice No: BRL/PNQ/2026/0340"
+  },
+  "invoice_date": {
+    "value": "01/10/2026",
+    "quote": "Date: 01/10/2026"
+  },
+  "po_number": {
+    "value": "PO-1007",
+    "quote": "PO Ref: PO-1007"
+  },
+  "buyer_name": {
+    "value": "Kestrel Retail Pvt Ltd",
+    "quote": "Bill To: Kestrel Retail Pvt Ltd"
+  },
+  "buyer_gstin": {
+    "value": "",
+    "quote": ""
+  },
+  "bank_name": {
+    "value": "Kotak Mahindra Bank",
+    "quote": "Bank: Kotak Mahindra Bank"
+  },
+  "bank_account_number": {
+    "value": "4612032208",
+    "quote": "A/c 4612032208"
+  },
+  "bank_ifsc": {
+    "value": "KKBK0002345",
+    "quote": "IFSC KKBK0002345"
+  },
+  "currency": {
+    "value": "Rs.",
+    "quote": "Rs.26,550.00"
+  },
+  "subtotal": {
+    "value": "Rs.22,500.00",
+    "quote": "Taxable Rs.22,500.00"
+  },
+  "grand_total": {
+    "value": "Rs.26,550.00",
+    "quote": "TOTAL Rs.26,550.00"
+  },
+  "line_items": [
+    {
+      "description": "Warehouse loading/unloading labour",
+      "hsn": "9967",
+      "quantity": "5",
+      "unit_price": "Rs.4,500.00",
+      "amount": "Rs.22,500.00",
+      "quote": "1 Warehouse loading/unloading labour 9967 5 Rs.4,500.00 Rs.22,500.00"
+    }
+  ],
+  "tax_lines": [
+    {
+      "label": "IGST",
+      "rate_percent": "18%",
+      "amount": "Rs.4,050.00",
+      "quote": "IGST 18% Rs.4,050.00"
+    }
+  ],
+  "discounts": [],
+  "reader_notes": "Document photographed at a slight skew with uneven shading; the text is still legible. Quantity is given in the 'Days' column. The SAC code is used in the HSN field."
+}

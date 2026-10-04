@@ -1,0 +1,82 @@
+{
+  "document_type": "tax_invoice",
+  "document_type_quote": "TAX INVOICE",
+  "vendor_name": {
+    "value": "Shree Ganesh Office Solutions",
+    "quote": "Shree Ganesh Office Solutions"
+  },
+  "vendor_gstin": {
+    "value": "27AAKFS5678G1Z2",
+    "quote": "GSTIN: 27AAKFS5678G1Z2"
+  },
+  "invoice_number": {
+    "value": "SGOS/0912",
+    "quote": "Invoice No.: SGOS/0912"
+  },
+  "invoice_date": {
+    "value": "24/09/2026",
+    "quote": "Invoice Date: 24/09/2026"
+  },
+  "po_number": {
+    "value": "PO-1003",
+    "quote": "PO No.: PO-1003"
+  },
+  "buyer_name": {
+    "value": "Kestrel Retail Pvt Ltd",
+    "quote": "Kestrel Retail Pvt Ltd"
+  },
+  "buyer_gstin": {
+    "value": "27AAKCK4321L1Z9",
+    "quote": "GSTIN: 27AAKCK4321L1Z9"
+  },
+  "bank_name": {
+    "value": "ICICI Bank",
+    "quote": "Bank: ICICI Bank"
+  },
+  "bank_account_number": {
+    "value": "001205018820",
+    "quote": "A/c No.: 001205018820"
+  },
+  "bank_ifsc": {
+    "value": "ICIC0004567",
+    "quote": "IFSC: ICIC0004567"
+  },
+  "currency": {
+    "value": "Rs.",
+    "quote": "Rate (Rs.)"
+  },
+  "subtotal": {
+    "value": "60,400.00",
+    "quote": "Sub Total 60,400.00"
+  },
+  "grand_total": {
+    "value": "71,272.00",
+    "quote": "Grand Total 71,272.00"
+  },
+  "line_items": [
+    {
+      "description": "JK Copier A4 Paper 75 GSM, 500 sheets/ream",
+      "hsn": "4802",
+      "quantity": "200",
+      "unit_price": "302.00",
+      "amount": "60,400.00",
+      "quote": "JK Copier A4 Paper 75 GSM, 500 sheets/ream 4802 200 302.00 60,400.00"
+    }
+  ],
+  "tax_lines": [
+    {
+      "label": "CGST @ 9%",
+      "rate_percent": "9%",
+      "amount": "5,436.00",
+      "quote": "CGST @ 9% 5,436.00"
+    },
+    {
+      "label": "SGST @ 9%",
+      "rate_percent": "9%",
+      "amount": "5,436.00",
+      "quote": "SGST @ 9% 5,436.00"
+    }
+  ],
+  "discounts": [],
+  "reader_notes": ""
+}

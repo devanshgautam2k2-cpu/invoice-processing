@@ -1,0 +1,90 @@
+{
+  "document_type": "tax_invoice",
+  "document_type_quote": "TAX INVOICE",
+  "vendor_name": {
+    "value": "Shree Ganesh Office Solutions",
+    "quote": "Shree Ganesh Office Solutions"
+  },
+  "vendor_gstin": {
+    "value": "27AAKFS5678G1Z2",
+    "quote": "GSTIN: 27AAKFS5678G1Z2"
+  },
+  "invoice_number": {
+    "value": "SGOS/1004",
+    "quote": "Invoice No. SGOS/1004"
+  },
+  "invoice_date": {
+    "value": "03/10/2026",
+    "quote": "Invoice Date 03/10/2026"
+  },
+  "po_number": {
+    "value": "PO-1009",
+    "quote": "Your PO PO-1009"
+  },
+  "buyer_name": {
+    "value": "Kestrel Retail Pvt Ltd, 4th Floor, Baner Business Park, Pune 411045",
+    "quote": "Bill To Kestrel Retail Pvt Ltd, 4th Floor, Baner Business Park, Pune 411045"
+  },
+  "buyer_gstin": {
+    "value": "27AAKCK4321L1Z9",
+    "quote": "Buyer GSTIN 27AAKCK4321L1Z9"
+  },
+  "bank_name": {
+    "value": "ICICI Bank",
+    "quote": "Remittance: ICICI Bank"
+  },
+  "bank_account_number": {
+    "value": "001205018820",
+    "quote": "A/c No. 001205018820"
+  },
+  "bank_ifsc": {
+    "value": "ICIC0004567",
+    "quote": "IFSC ICIC0004567"
+  },
+  "currency": {
+    "value": "Rs",
+    "quote": "Rs"
+  },
+  "subtotal": {
+    "value": "Rs 37,000.00",
+    "quote": "Sub Total Rs 37,000.00"
+  },
+  "grand_total": {
+    "value": "Rs 43,660.00",
+    "quote": "Invoice Total Rs 43,660.00"
+  },
+  "line_items": [
+    {
+      "description": "Cello Butterflow Ball Pen, blue (box of 25)",
+      "hsn": "9608",
+      "quantity": "60",
+      "unit_price": "Rs 250.00",
+      "amount": "Rs 15,000.00",
+      "quote": "Cello Butterflow Ball Pen, blue (box of 25) 9608 60 Rs 250.00 Rs 15,000.00"
+    },
+    {
+      "description": "Camlin Whiteboard Marker, assorted (box of 10)",
+      "hsn": "9608",
+      "quantity": "100",
+      "unit_price": "Rs 220.00",
+      "amount": "Rs 22,000.00",
+      "quote": "Camlin Whiteboard Marker, assorted (box of 10) 9608 100 Rs 220.00 Rs 22,000.00"
+    }
+  ],
+  "tax_lines": [
+    {
+      "label": "CGST",
+      "rate_percent": "9%",
+      "amount": "Rs 3,330.00",
+      "quote": "CGST 9% Rs 3,330.00"
+    },
+    {
+      "label": "SGST",
+      "rate_percent": "9%",
+      "amount": "Rs 3,330.00",
+      "quote": "SGST 9% Rs 3,330.00"
+    }
+  ],
+  "discounts": [],
+  "reader_notes": ""
+}

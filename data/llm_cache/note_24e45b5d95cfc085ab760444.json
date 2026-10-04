@@ -1,3 +1,0 @@
-{
-  "note": "Send back invoice INT-0003 from Northwind Electronics LLP because the quantity exceeds what remains on the PO line. This invoice bills 45 x 'LG 27MP400 27-inch IPS Monitor' (PO-1002-L1), but only 40 of the 60 ordered are still unbilled (20 already invoiced). Contact the vendor to resubmit with the correct quantity of 40 units or less."
-}

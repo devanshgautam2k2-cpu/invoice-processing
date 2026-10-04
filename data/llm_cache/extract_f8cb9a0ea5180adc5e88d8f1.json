@@ -1,0 +1,82 @@
+{
+  "document_type": "tax_invoice",
+  "document_type_quote": "GST INVOICE",
+  "vendor_name": {
+    "value": "DECCAN FURNITURE WORKS",
+    "quote": "DECCAN FURNITURE WORKS"
+  },
+  "vendor_gstin": {
+    "value": "27AAEFD3456J1Z4",
+    "quote": "GSTIN 27AAEFD3456J1Z4"
+  },
+  "invoice_number": {
+    "value": "DFW/26-27/118",
+    "quote": "Invoice No: DFW/26-27/118"
+  },
+  "invoice_date": {
+    "value": "03-Oct-2026",
+    "quote": "Invoice Date: 03-Oct-2026"
+  },
+  "po_number": {
+    "value": "PO-1010",
+    "quote": "Buyer's Order No: PO-1010"
+  },
+  "buyer_name": {
+    "value": "Kestrel Retail Pvt Ltd",
+    "quote": "Buyer: Kestrel Retail Pvt Ltd"
+  },
+  "buyer_gstin": {
+    "value": "27AAKCK4321L1Z9",
+    "quote": "Buyer GSTIN: 27AAKCK4321L1Z9"
+  },
+  "bank_name": {
+    "value": "State Bank of India",
+    "quote": "Bank: State Bank of India"
+  },
+  "bank_account_number": {
+    "value": "38291046694",
+    "quote": "A/c 38291046694"
+  },
+  "bank_ifsc": {
+    "value": "SBIN0012345",
+    "quote": "IFSC SBIN0012345"
+  },
+  "currency": {
+    "value": "INR",
+    "quote": "Amount chargeable (in words): INR One Lakh Eighty Six Thousand Four Hundred Forty Only"
+  },
+  "subtotal": {
+    "value": "158,000",
+    "quote": "Taxable Value 158,000"
+  },
+  "grand_total": {
+    "value": "186,440",
+    "quote": "Total 186,440"
+  },
+  "line_items": [
+    {
+      "description": "Steel Storage Cabinet DF-SC4",
+      "hsn": "9403",
+      "quantity": "10",
+      "unit_price": "15,800",
+      "amount": "158,000",
+      "quote": "Steel Storage Cabinet DF-SC4 9403 10 15,800 158,000 9 14,220 9 14,220 186,440"
+    }
+  ],
+  "tax_lines": [
+    {
+      "label": "CGST",
+      "rate_percent": "9",
+      "amount": "14,220",
+      "quote": "CGST % 9 CGST Amt 14,220"
+    },
+    {
+      "label": "SGST",
+      "rate_percent": "9",
+      "amount": "14,220",
+      "quote": "SGST % 9 SGST Amt 14,220"
+    }
+  ],
+  "discounts": [],
+  "reader_notes": ""
+}

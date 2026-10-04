@@ -14,8 +14,8 @@ import anthropic
 
 from .config import CACHE_DIR, api_key, config
 
-PROMPT_VERSION = "v1"
-NOTE_PROMPT_VERSION = "v2"
+PROMPT_VERSION = "v3"
+NOTE_PROMPT_VERSION = "v3"
 
 
 class LLMUnavailable(Exception):
@@ -57,7 +57,8 @@ def _json_call(model: str, system: str, content: list, schema: dict, max_tokens:
             system=system,
             messages=[{"role": "user", "content": content}],
             output_config={"format": {"type": "json_schema", "schema": schema}},
-            extra_body={"temperature": config()["llm"]["temperature"]},
+            # Haiku 4.5 honours temperature 0; Sonnet 5.5 / Opus 5.5 reject any non-default sampling setting.
+            **({"extra_body": {"temperature": config()["llm"]["temperature"]}} if model.startswith("claude-haiku") else {}),
         )
     except anthropic.APIConnectionError as e:
         raise LLMUnavailable(f"Could not reach the AI service: {e}") from e
@@ -92,7 +93,12 @@ SCALAR_FIELDS = [
     "currency", "subtotal", "grand_total",
 ]
 
+DOCUMENT_TYPES = ["tax_invoice", "bill_of_supply", "proforma_invoice", "quotation", "credit_note", "debit_note",
+                  "purchase_order", "delivery_challan", "receipt", "other"]
+
 EXTRACTION_SCHEMA = _obj({
+    "document_type": {"type": "string", "enum": DOCUMENT_TYPES},
+    "document_type_quote": _str(),
     **{f: FIELD for f in SCALAR_FIELDS},
     "line_items": {"type": "array", "items": _obj({
         "description": {"type": "string"},
@@ -126,21 +132,24 @@ Rules:
 - vendor_* fields describe the supplier issuing the invoice; buyer_* fields describe the customer it is billed to.
 - po_number is the buyer's purchase order reference (it may be labelled PO No., Your Ref, Purchase Order, Order Ref, etc.).
 - subtotal is the taxable value before tax; grand_total is the final amount payable.
-- line_items: one entry per billed item row; quote = the row's text as printed.
+- line_items: one entry per billed item row; quote = the row's text as printed. A line's amount is its value BEFORE tax (quantity x rate, after any line discount): when a row shows both a taxable value and a tax-inclusive total, use the taxable value.
 - tax_lines: one entry per tax row (CGST, SGST, IGST, etc.).
 - discounts: any discount, rebate or "less" line; empty list if none.
-- reader_notes: anything that made reading hard (blur, skew, handwriting, cut-off text), else ""."""
+- reader_notes: anything that made reading hard (blur, skew, handwriting, cut-off text), else "".
+- document_type: what this document IS, judged from its title and wording: tax_invoice (a GST tax invoice, or a plain "Invoice" asking for payment), bill_of_supply, proforma_invoice, quotation (also estimate, quote, offer), credit_note, debit_note, purchase_order, delivery_challan, receipt, or other. document_type_quote = the exact words that show it (e.g. "QUOTATION", "Tax Invoice").
+- If it is not a tax invoice, still transcribe every field you can find, but leave invoice_number "" unless the document really prints an invoice number (a quote or order number is not an invoice number)."""
 
 
-def extract_invoice(pdf: bytes, file_hash: str) -> tuple[dict, bool]:
+def extract_invoice(pdf: bytes, file_hash: str, scanned: bool = False) -> tuple[dict, bool]:
+    """Scans go to the stronger reader: nothing on an image can be checked against a text layer."""
     cfg = config()["llm"]
-    model = cfg["extraction_model"]
+    model = cfg["scan_extraction_model"] if scanned else cfg["extraction_model"]
 
     def request():
         content = [
             {"type": "document", "source": {"type": "base64", "media_type": "application/pdf",
                                             "data": base64.standard_b64encode(pdf).decode()}},
-            {"type": "text", "text": "Transcribe this invoice into the required JSON."},
+            {"type": "text", "text": "Transcribe this document into the required JSON."},
         ]
         return _json_call(model, EXTRACTION_SYSTEM, content, EXTRACTION_SCHEMA)
 
