@@ -1,0 +1,3 @@
+{
+  "note": "Invoice INT-0008 from Apex Tech Supplies Pvt Ltd requires human review because the tax rate does not match the purchase order. The invoice charges tax at 28.00% totalling Rs 43,680.00, but the PO specifies 18% which would be Rs 28,080.00 on this taxable value, a difference of Rs 15,600.00. Please contact the vendor to confirm whether the correct tax rate is 18% as per PO-1001 or if 28% applies, then process accordingly."
+}

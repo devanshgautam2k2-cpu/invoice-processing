@@ -10,6 +10,7 @@ outcomes: they exist to see how the live system copes with something new.
   u5  PO written without its prefix ("P.O. No: 1011"), US-style date      Apex / PO-1011
   u6  a quotation, not an invoice (no invoice number)                     Apex / PO-1006
   u7  billed in US dollars                                               Northwind / PO-1002
+  u8  GST charged at 28% where the PO says 18%                           Apex / PO-1001
 
 Run:  python scripts/generate_unseen.py
 """
@@ -333,12 +334,43 @@ def u7(path):
     doc(path, story, title="NWE-2026-1340")
 
 
+# ---------------------------------------------------------------- u8 wrong GST rate (28% vs the PO's 18%)
+
+def u8(path):
+    v = V["V-001"]
+    qty, price = 2, 78000
+    sub = qty * price
+    half = sub * 0.14  # CGST 14% + SGST 14% = 28%
+    story = [
+        Paragraph("Apex Tech Supplies Pvt Ltd", S("h", fontName="TB", fontSize=15, leading=19)),
+        Paragraph(f"Unit 12, Kalyani Nagar Tech Hub, Pune 411006 · GSTIN {v['gstin']}", S("a", fontSize=8)),
+        Spacer(1, 6 * mm),
+        Paragraph("TAX INVOICE", S("ti", fontName="TB", fontSize=12)),
+        Spacer(1, 4 * mm),
+        Table([["Invoice No.", "ATS/26-27/0489"], ["Date", "03-10-2026"], ["PO No.", "PO-1001"],
+               ["Bill To", f"{BUYER['name']}, GSTIN {BUYER['gstin']}"]],
+              colWidths=[30 * mm, 120 * mm], style=[("FONT", (0, 0), (-1, -1), "AU", 9), ("FONT", (0, 0), (0, -1), "TB", 9)]),
+        Spacer(1, 6 * mm),
+        Table([["Item", "HSN", "Qty", "Rate", "Amount"],
+               ["Dell Latitude 5440 Laptop - Intel i5, 16GB RAM, 512GB SSD", "8471", str(qty), rs(price, "Rs "), rs(sub, "Rs ")],
+               ["", "", "", "Taxable value", rs(sub, "Rs ")], ["", "", "", "CGST @ 14%", rs(half, "Rs ")],
+               ["", "", "", "SGST @ 14%", rs(half, "Rs ")], ["", "", "", "Grand Total", rs(sub + 2 * half, "Rs ")]],
+              colWidths=[80 * mm, 16 * mm, 14 * mm, 30 * mm, 34 * mm],
+              style=[("FONT", (0, 0), (-1, -1), "AU", 9), ("FONT", (0, 0), (-1, 0), "TB", 9),
+                     ("GRID", (0, 0), (-1, 1), 0.4, colors.grey), ("FONT", (3, -1), (-1, -1), "TB", 10),
+                     ("ALIGN", (2, 0), (-1, -1), "RIGHT")]),
+        Spacer(1, 8 * mm),
+        Paragraph(f"Bank: {v['bank']['bank_name']} · A/c {v['bank']['account_number']} · IFSC {v['bank']['ifsc']}", S("b")),
+    ]
+    doc(path, story, title="ATS/26-27/0489")
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     for name, fn in [("u1_northwind_minimal_rupee.pdf", u1), ("u2_blue_river_phone_photo.pdf", u2),
                      ("u3_shree_ganesh_two_pages.pdf", u3), ("u4_deccan_gst_columns.pdf", u4),
                      ("u5_apex_po_without_prefix.pdf", u5), ("u6_apex_quotation_not_invoice.pdf", u6),
-                     ("u7_northwind_billed_in_usd.pdf", u7)]:
+                     ("u7_northwind_billed_in_usd.pdf", u7), ("u8_apex_gst_28_instead_of_18.pdf", u8)]:
         fn(OUT / name)
         print("wrote", name)
 

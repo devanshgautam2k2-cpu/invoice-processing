@@ -40,6 +40,7 @@ Every scenario below has a test invoice and is checked by the regression test (`
 | Totals don't add up | Human review (H5) | `e11` |
 | Invoice dated before the PO or more than 3 months after it | Human review (H10) | `e15` |
 | Tax rate that isn't a valid GST rate | Human review (H11) | `e16` |
+| **Tax differs from the PO's rate** (e.g. 28% charged where the PO says 18%) | Human review (H17) with both rates and the rupee gap; the total is compared before tax, so a tax difference alone never sends it back | `u8` |
 | A field not verifiable in the PDF text (e.g. PO as a stamp image) | Human review (H12) | `e17` |
 | **Not an invoice** (quotation, proforma, credit note) | Human review (H14), never paid or sent back | `u6` |
 | **Billed in another currency** | Converted to INR at the invoice-date rate, checked, human approves (H16) | `u7` |
@@ -75,7 +76,7 @@ Unseen invoices (`test_invoices/unseen/`: new layouts, a phone photo, a two-page
 python tests/test_regression.py
 ```
 
-Runs all 33 test invoices (core, edge-case and unseen) on a throwaway database, offline (cached AI results only, no API spend, a few seconds), and checks every outcome and reason code against `test_invoices/EXPECTED.md`. It also checks the reviewer flow (approving 03a reruns 03b), the final PO statuses, alias learning (with the tick e18 is approved on the learned alias; without it, H6 again), H8, and a simulated crash that must end in H15 rather than a stuck invoice. 55 checks; exit code 0 means all pass. Run it after any rule change.
+Runs all 34 test invoices (core, edge-case and unseen) on a throwaway database, offline (cached AI results only, no API spend, a few seconds), and checks every outcome and reason code against `test_invoices/EXPECTED.md`. It also checks the reviewer flow (approving 03a reruns 03b), the final PO statuses, alias learning (with the tick e18 is approved on the learned alias; without it, H6 again), H8, and a simulated crash that must end in H15 rather than a stuck invoice. 56 checks; exit code 0 means all pass. Run it after any rule change.
 
 ### Demo order (5 minutes)
 
@@ -137,9 +138,9 @@ engine/
   pdf_reader.py         file hash, text-vs-scan detection, page render
 data/                   config.json (every threshold) · vendors.json · pos_seed.json · llm_cache/
 scripts/generate_invoices.py   builds the test PDFs (3 layouts, reproducible bytes)
-test_invoices/          7 core test PDFs + EXPECTED.md; extended/ holds 19 edge-case PDFs; unseen/ holds 7
+test_invoices/          7 core test PDFs + EXPECTED.md; extended/ holds 19 edge-case PDFs; unseen/ holds 8
 reset_demo.py           restore a clean demo state (optionally run the test set)
-tests/test_regression.py   all 33 invoices vs EXPECTED.md, offline (55 checks)
+tests/test_regression.py   all 34 invoices vs EXPECTED.md, offline (56 checks)
 ```
 
 ## Choices worth knowing

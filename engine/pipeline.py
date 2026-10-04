@@ -46,6 +46,7 @@ REASONS = {
     "H14": ("human_review", "Not a tax invoice (quotation, proforma, credit note, ...); read and passed to a human"),
     "H15": ("human_review", "Unclassified: outside what the system understands; needs a person"),
     "H16": ("human_review", "Foreign currency: converted to INR for the checks; a person gives final approval"),
+    "H17": ("human_review", "Tax differs from the PO's tax rate; a person checks it with the vendor"),
 }
 SEVERITY = {"approve": 1, "human_review": 2, "send_back": 3}
 OUTCOME_STATUS = {"approve": "approved", "human_review": "human_review", "send_back": "sent_back"}
@@ -603,14 +604,32 @@ def stage_lines(run: Run, ctx: dict):
         line_results.append(res)
         allocations.append({"line_id": line_id, "qty": qty, "unit_price": unit})
 
-    # Invoice total vs expected total (invoiced qty x PO price, plus tax)
+    # Invoice total vs expected total (invoiced qty x PO price, plus the PO's tax)
     if grouped and n["grand_total"] is not None:
-        expected = sum(sum(l["qty"] for l in ls) * po_lines[lid]["unit_price"] * (1 + po_lines[lid]["tax_rate"] / 100)
-                       for lid, ls in grouped.items())
-        band = checks.price_band(n["grand_total"], expected)
+        qty_on = {lid: sum(l["qty"] for l in ls) for lid, ls in grouped.items()}
+        expected_taxable = sum(q * po_lines[lid]["unit_price"] for lid, q in qty_on.items())
+        expected_tax = sum(q * po_lines[lid]["unit_price"] * po_lines[lid]["tax_rate"] / 100 for lid, q in qty_on.items())
+        expected = expected_taxable + expected_tax
         ctx["expected_total"] = round(expected, 2)
-        _flag_band(run, S, band, f"Invoice total {inr(n['grand_total'])} vs expected {inr(expected)}",
-                   stated_discount_pcts, line="total")
+        taxable = checks.taxable_value(n)
+        tax = sum(t["amount"] or 0 for t in n["taxes"])
+        po_rate = expected_tax / expected_taxable * 100 if expected_taxable else 0.0
+        inv_rate = tax / taxable * 100 if taxable else 0.0
+        if abs(inv_rate - po_rate) > checks.config()["tax"]["rounding_tolerance_pct"]:
+            # A tax difference is never a send-back: compare the goods before tax, and a person checks the tax.
+            tax_gap = tax - taxable * po_rate / 100
+            run.force_human = True
+            run.flag("H17", S, f"Invoice charges tax at {inv_rate:.2f}% ({inr(tax)}) where the PO's rate is {po_rate:g}% "
+                               f"({inr(taxable * po_rate / 100)} on this taxable value): {inr(tax_gap)} "
+                               f"{'more' if tax_gap > 0 else 'less'}. Please confirm the correct tax with the vendor.")
+            run.emit(S, "warn", f"Tax {inv_rate:.2f}% vs PO {po_rate:g}%: compared before tax; a person checks the tax")
+            band = checks.price_band(taxable, expected_taxable)
+            _flag_band(run, S, band, f"Taxable value {inr(taxable)} vs expected {inr(expected_taxable)} (before tax)",
+                       stated_discount_pcts, line="total")
+        else:
+            band = checks.price_band(n["grand_total"], expected)
+            _flag_band(run, S, band, f"Invoice total {inr(n['grand_total'])} vs expected {inr(expected)}",
+                       stated_discount_pcts, line="total")
     ctx["line_results"], ctx["allocations"] = line_results, allocations
 
 

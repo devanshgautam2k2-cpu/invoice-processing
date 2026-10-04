@@ -446,6 +446,7 @@ Added reason codes:
 | H14 | Human review | Not a tax invoice (quotation, proforma, credit note, ...): read in full and passed to a human, never sent back |
 | H15 | Human review | Unclassified: an unexpected error, an unrecognised document type or currency, or a text PDF the AI found hard to read; a person decides, never the "closest" rule |
 | H16 | Human review | Foreign currency: converted to INR at the invoice-date rate (source and rate in the note), all checks run on INR values, a person gives final approval |
+| H17 | Human review | Tax differs from the PO's tax rate: both rates and the rupee gap in the note; the total is then compared before tax, so a tax difference alone never sends an invoice back |
 
 ## Added after testing on unseen invoices
 
@@ -456,6 +457,7 @@ Six invoices in layouts the system was never tuned on (`test_invoices/unseen/`) 
 - **Model per document kind.** Text PDFs are read by Claude Haiku 4.5, then every key field is verified against the PDF's text. Image-only PDFs (scans, phone photos) are read by Claude Sonnet 5.5: nothing on an image can be verified, and in testing Haiku misread a GSTIN on a scan that Sonnet and Opus 5.5 read correctly. Scans lead with H3, and are always checked by a person.
 - **H8 built: candidate PO for a wrong PO number.** When a PO number is not found (and its digits match no PO of the vendor), the vendor's open POs that are not on hold are checked: Claude pairs the invoice lines with each PO's own lines, and code checks quantities against what remains and prices against the 7% band. A fit goes to a human with the note "PO-1031 not found. PO-1013 from the same vendor matches all items and amounts; possible typo", the candidate is put on hold, and the review form preselects it with the quantities prefilled. No fit: S9 as before.
 - **Nothing falls into the "closest" code (H15).** Reason codes are never guessed: each comes from one check. Anything the system does not understand goes to a person as H15: an unexpected error mid-pipeline (the invoice is never left stuck), an unrecognised document type or currency, or a text PDF the AI flags as hard to read.
+- **Tax different from the PO (H17).** The invoice's effective tax rate is compared with the PO lines' rates. If they differ, the invoice goes to a person with both rates and the rupee difference, and the total is compared with the PO before tax, so a tax difference alone is never a send-back. Before this, 28% charged on an 18% PO was sent back as "more than 7% over".
 - **Foreign currency (H16).** The currency is recognised (₹/Rs/INR proceed); any other is converted to INR at the invoice-date rate from Frankfurter (European Central Bank), saved in `data/fx_cache.json` for replays, with a config fallback if the service is down. All checks run on the INR values and a person gives final approval, with the rate, its date and source in the note.
 - **Amounts with a currency prefix.** "Rs.4,500.00" is now read as 4,500; the dot after "Rs" was being taken for a decimal point.
 

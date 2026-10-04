@@ -1,0 +1,3 @@
+{
+  "note": "Invoice INT-0023 from Blue River Logistics Pvt Ltd requires human review because the implied GST rate of 20.00% is not a valid GST rate. The invoice charges tax at 20.00% (Rs 2,400.00) but the PO specifies 18% (Rs 2,160.00 on this taxable value), creating a Rs 240.00 difference. Please confirm the correct tax rate with the vendor before processing payment."
+}
