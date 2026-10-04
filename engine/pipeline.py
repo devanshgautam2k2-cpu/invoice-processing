@@ -359,8 +359,19 @@ def stage_po(run: Run, ctx: dict):
         if p:
             n["po_number"] = p["po_id"]
     if not p:
-        run.flag("S9", S, f"PO number {n['po_number']} not found")
-        run.emit(S, "fail", f"PO {n['po_number']} not found")
+        candidates = _candidate_pos(run, ctx)
+        if candidates:
+            ids = [c["po_id"] for c in candidates]
+            ctx["candidate_pos"], ctx["allocations"] = ids, candidates[0]["allocations"]
+            which = (f"{ids[0]} from the same vendor matches all items and amounts within tolerance"
+                     if len(ids) == 1 else
+                     f"{len(ids)} POs from the same vendor match all items and amounts ({', '.join(ids)})")
+            run.flag("H8", S, f"PO number {n['po_number']} not found. {which}; possible typo in the PO number. "
+                              "Please confirm the PO before approving.", candidates=ids)
+            run.emit(S, "warn", f"PO {n['po_number']} not found; candidate: {', '.join(ids)}")
+        else:
+            run.flag("S9", S, f"PO number {n['po_number']} not found")
+            run.emit(S, "fail", f"PO {n['po_number']} not found, and no open PO from this vendor matches the invoice")
         raise Stop
     ctx["po"] = p
     if p["status"] == "On hold" and p["hold_invoice_id"] != run.id:
@@ -375,6 +386,46 @@ def stage_po(run: Run, ctx: dict):
         "po_date": p["po_date"],
         "lines": [{"line": l["line_id"], "description": l["description"], "ordered": l["qty_ordered"],
                    "remaining": l["qty_remaining"], "unit_price": l["unit_price"]} for l in p["lines"]]})
+
+
+def _candidate_pos(run: Run, ctx: dict) -> list[dict]:
+    """H8: the vendor's open POs whose lines this invoice fits: every line paired (LLM, from that PO's own
+    line ids), quantity within what remains, unit price not more than 7% over. Code decides the fit."""
+    n = ctx["n"]
+    vendor_id = db.invoice(run.c, run.id)["vendor_id"]  # identified in stage 5
+    if not vendor_id or not n["lines"] or any(l["qty"] is None or l["unit_price"] is None for l in n["lines"]):
+        return []
+    review_max = checks.config()["tolerance_over"]["review_max_pct"]
+    found = []
+    for row in run.c.execute("SELECT po_id FROM pos WHERE vendor_id=? AND status != 'Fully invoiced' ORDER BY po_id",
+                             (vendor_id,)).fetchall():
+        p = db.po(run.c, row["po_id"])
+        if p["status"] == "On hold":
+            continue  # under someone else's review: not offered as a candidate
+        shortlist = [{"line_id": l["line_id"], "description": l["description"]} for l in p["lines"]]
+        matches, _ = llm.match_lines([l["description"] for l in n["lines"]], shortlist)
+        by_inv = {m["invoice_line"]: m["po_line_id"] for m in matches}
+        lines = {l["line_id"]: l for l in p["lines"]}
+        qty = defaultdict(float)
+        fits, allocations = True, []
+        for l in n["lines"]:
+            lid = by_inv.get(l["n"], "UNMATCHED")
+            if lid == "UNMATCHED":
+                fits = False
+                break
+            qty[lid] += l["qty"]
+            pct = (l["unit_price"] - lines[lid]["unit_price"]) / lines[lid]["unit_price"] * 100
+            if pct > review_max:
+                fits = False
+                break
+            allocations.append({"line_id": lid, "qty": l["qty"], "unit_price": l["unit_price"]})
+        if fits and all(q <= lines[lid]["qty_remaining"] for lid, q in qty.items()):
+            found.append({"po_id": p["po_id"], "allocations": allocations})
+            run.emit("6 PO", "info", f"Candidate {p['po_id']}: every invoice line matches a line with enough "
+                                     "remaining, prices within tolerance")
+        else:
+            run.emit("6 PO", "info", f"{p['po_id']} checked as a candidate: does not fit this invoice")
+    return found
 
 
 def _po_by_digits(run: Run, written: str) -> dict | None:
@@ -585,7 +636,8 @@ def decide_and_record(run: Run, ctx: dict) -> dict:
     decision = {"outcome": outcome, "reason_code": code, "findings": run.findings,
                 "reading_confidence": run.confidence, "confidence_reasons": run.confidence_reasons,
                 "line_results": ctx.get("line_results", []), "allocations": ctx.get("allocations", []),
-                "expected_total": ctx.get("expected_total"), "vendor_id": (ctx.get("vendor") or {}).get("vendor_id")}
+                "expected_total": ctx.get("expected_total"), "vendor_id": (ctx.get("vendor") or {}).get("vendor_id"),
+                "candidate_pos": ctx.get("candidate_pos", [])}
     run.c.execute(
         "UPDATE invoices SET status=?, reason_code=?, reading_confidence=?, vendor_id=COALESCE(?, vendor_id), decision=?, note=?, decided_at=? WHERE id=?",
         (OUTCOME_STATUS[outcome], code, run.confidence, decision["vendor_id"], json.dumps(decision), note,
@@ -601,6 +653,11 @@ def decide_and_record(run: Run, ctx: dict) -> dict:
         db.set_hold(run.c, ctx["po"]["po_id"], run.id)
         run.emit("Update", "warn", f"{ctx['po']['po_id']} put On hold until a reviewer decides; "
                                    "later invoices on it will wait and rerun automatically")
+    elif outcome == "human_review" and ctx.get("candidate_pos"):
+        for po_id in ctx["candidate_pos"]:
+            db.set_hold(run.c, po_id, run.id)
+        run.emit("Update", "warn", f"Candidate PO(s) {', '.join(ctx['candidate_pos'])} put On hold until a reviewer "
+                                   "confirms which PO this invoice belongs to")
     else:
         run.emit("Update", "info", "PO unchanged")
     run.c.commit()
@@ -670,7 +727,6 @@ def review(invoice_id: int, action: str, reason_code: str, details: str = "", re
             if inv["status"] != "human_review":
                 raise ValueError(f"{inv['internal_id']} is not awaiting review (status {inv['status']})")
             decision = json.loads(inv["decision"])
-            held_po = db.po(c, inv["po_number"]) if inv["po_number"] else None
             applied = []
             if action == "approve":
                 applied = [a for a in (allocations if allocations is not None else decision.get("allocations", []))
@@ -693,9 +749,9 @@ def review(invoice_id: int, action: str, reason_code: str, details: str = "", re
                 db.add_alias(c, alias[0], alias[1], reviewer, invoice_id)
                 msg += f"; confirmed '{alias[1]}' as an alias of {db.vendor(c, alias[0])['legal_name']}"
             touched = {db.line_po(c, a["line_id"]) for a in applied}
-            if held_po and held_po["hold_invoice_id"] == invoice_id:
-                db.release_hold(c, held_po["po_id"])
-                touched.add(held_po["po_id"])
+            for r in c.execute("SELECT po_id FROM pos WHERE hold_invoice_id=?", (invoice_id,)).fetchall():
+                db.release_hold(c, r["po_id"])  # its own PO, or every H8 candidate it held
+                touched.add(r["po_id"])
             for po_id in sorted(touched):
                 db.refresh_po_status(c, po_id)
                 msg += f"; {po_id} now {db.po(c, po_id)['status']}"

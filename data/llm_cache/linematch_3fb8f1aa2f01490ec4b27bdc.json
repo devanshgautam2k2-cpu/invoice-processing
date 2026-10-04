@@ -1,0 +1,9 @@
+{
+  "matches": [
+    {
+      "invoice_line": 1,
+      "po_line_id": "PO-1013-L1",
+      "reason": "Both describe the same Logitech MX Master 3S Wireless Mouse model; the graphite color specification in the invoice is a variant detail of the same product."
+    }
+  ]
+}

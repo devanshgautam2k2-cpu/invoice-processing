@@ -11,7 +11,8 @@ Two runs, mirroring EXPECTED.md:
   B. Core set + extended set in one go (03a and 04 left awaiting review): every
      file's outcome and reason code.
      Then the reviewer approves e12 and confirms its name as an alias: e18 (same
-     name, waiting behind it) must rerun and approve on the learned alias.
+     name, waiting behind it) must rerun and approve on the learned alias. e19 (H8) must
+     hold its candidate PO-1013, and approving it must bill PO-1013 in full.
   C. e12 + e18 again, approved WITHOUT the alias tick: e18 must still get H6.
   D. Unseen set alone on a fresh database.
 """
@@ -130,6 +131,14 @@ def main() -> int:
     with db.tx() as c:
         aliases = [a["alias"] for a in db.vendor(c, "V-002")["learned_aliases"]]
     rep.check("alias recorded for V-002", aliases, ["Sri Ganesh Office Solution"])
+
+    with db.tx() as c:
+        rep.check("H8 candidate PO-1013 held by e19", db.po(c, "PO-1013")["hold_invoice_id"],
+                  invoice_id("e19_H8_northwind_po_typo.pdf"))
+    pipeline.review(invoice_id("e19_H8_northwind_po_typo.pdf"), "approve", "R-A1",
+                    "Regression test: vendor confirmed PO-1013, digits swapped")
+    with db.tx() as c:
+        rep.check("approving e19 bills the candidate PO-1013", db.po(c, "PO-1013")["status"], "Fully invoiced")
 
     print("\nRun C: e12 + e18 approved without the alias tick")
     extended_dir = TEST_DIR / "extended"

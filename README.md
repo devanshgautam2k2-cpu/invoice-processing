@@ -61,7 +61,7 @@ Nine stages, strictly one invoice at a time. Every stage can exit early with a r
 | 3 | Reading confidence | code | Qty × price = amount; lines = subtotal; subtotal + tax = total; each key field's quote is found in the PDF's text layer. Scans are always Low. |
 | 4 | Required fields | code | 7 fields. Missing: send back (S1) if confidence is High, else human (H3). |
 | 5 | Duplicates | code | Same file (S2, or S10 if the original was rejected); same vendor + number + amount as an approved invoice (S2); number already approved, different amount (S3); unchanged resend of a rejected invoice (S10), while a changed one is processed as a corrected version; number one character off (H9); same number still under review → wait |
-| 6 | PO | code | Exists (S9)? A PO written without its prefix ("P.O. 1011") is matched on its digits if it belongs to the same vendor. Fully invoiced (S4)? On hold → **wait and rerun after the decision** |
+| 6 | PO | code + **LLM** | Exists? A PO written without its prefix ("P.O. 1011") is matched on its digits if it belongs to the same vendor. Not found → the vendor's open POs are checked as **candidates** (Claude pairs the lines; code checks quantities and prices): a fit goes to a human with the candidate named and held (H8, "possible typo"); no fit is sent back (S9). Fully invoiced (S4)? On hold → **wait and rerun after the decision** |
 | 7 | Vendor | code | Name vs PO vendor and aliases, rapidfuzz ≥90 pass, 75–90 human (H6), <75 S7; bank account + IFSC vs vendor master (H7); GSTIN (informational) |
 | 8 | Lines | **LLM** + code | Claude pairs each invoice line with a PO line, **choosing only from that PO's line IDs** or UNMATCHED. Code checks quantity ≤ remaining (S5), every unit price and the expected total against the tolerance bands, the invoice date (PO date to PO date + 3 months, H10) and the implied GST rate. |
 | 9 | Decide | code | Most severe wins. **Nothing goes back to a vendor unless reading confidence is High**; otherwise a human sees it first. One exception: a byte-identical resend (same file hash) is a duplicate whatever the reading quality. |
@@ -118,7 +118,6 @@ Built deliberately small; each item has a path to production.
 |---|---|---|
 | Email / AP inbox ingestion | Upload or test-set picker | Mailbox or S3 listener feeding the same `enqueue()` |
 | OCR second read for scans (H4) | Every scan is Low confidence → human | Tesseract or cloud OCR + LLM read; agreement on key fields would let clean scans skip review |
-| Candidate-PO search for a wrong PO number (H8) | PO not found → send back (S9) | Filter the vendor's open POs and reuse the line matcher; reviewer confirms |
 | Three-way match (goods receipt) | Two-way: PO vs invoice | Add GRN quantities as the "remaining" ceiling; also catches disguised duplicates |
 | GSTIN matching | Compared and shown, informational only | Make a mismatch a review reason |
 | Financial year in the invoice-number key | Vendor + number | Add FY (numbering restarts each April) |

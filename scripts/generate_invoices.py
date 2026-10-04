@@ -417,7 +417,7 @@ EXTENDED = [
     Invoice("e02_S3_apex_number_already_approved.pdf", "V-001", "ATS/26-27/0418", "01-10-2026", "PO-1011", "classic", [
         Line(DELL_24, "8528", 2, 16900)]),
     Invoice("e03_S9_northwind_po_not_found.pdf", "V-003", "NWE-2026-1301", "30 Sep 2026", "PO-1020", "modern", [
-        Line("Logitech C920 HD Pro Webcam", "8525", 5, 6200)]),
+        Line("Samsung 980 PRO 1TB NVMe SSD", "8523", 5, 9800)]),  # no Northwind PO has this item, so no H8 candidate
     Invoice("e04_S7_kaveri_wrong_vendor.pdf", "X-KAV", "KT/0098", "28/09/2026", "PO-1011", "classic", [
         Line(DELL_24, "8528", 8, 16900)], vendor_overrides=KAVERI),
     Invoice("e05_S8_shree_ganesh_items_not_on_po.pdf", "V-002", "SGOS/0951", "27/09/2026", "PO-1009", "classic", [
@@ -449,6 +449,8 @@ EXTENDED = [
     Invoice("e18_learned_alias_followup.pdf", "V-002", "SGOS/0970", "01/10/2026", "PO-1009", "classic", [
         Line("Cello Butterflow Ball Pen, box of 25", "9608", 60, 250)],
         vendor_overrides={"legal_name": "Sri Ganesh Office Solution"}),
+    Invoice("e19_H8_northwind_po_typo.pdf", "V-003", "NWE-2026-1322", "02 Oct 2026", "PO-1031", "modern", [
+        Line("Logitech MX Master 3S Wireless Mouse, graphite", "8471", 25, 7900)]),
     Invoice("e17_H12_blue_river_po_stamped.pdf", "V-005", "BRL/PNQ/2026/0317", "30 Sep 2026", "PO-1005", "modern", [
         Line("Freight Pune to Mumbai, full truck load (per trip)", "9965", 6, 9500)], po_stamp=True),
 ]

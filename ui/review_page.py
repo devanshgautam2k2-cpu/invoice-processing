@@ -93,9 +93,15 @@ def billing_editor(inv: dict) -> list[dict]:
         else:
             rows = c.execute("""SELECT po_id, vendor_id, status FROM pos WHERE status != 'Fully invoiced'
                                 ORDER BY (vendor_id = ?) DESC, po_id""", (inv["vendor_id"],)).fetchall()
-            options = [r["po_id"] for r in rows]
-            st.warning(f"The invoice's PO number ({inv['po_number'] or 'none'}) was not found. "
-                       "Pick the PO it belongs to (the vendor's own POs are listed first).", icon="🔎")
+            candidates = (inv["decision"] or {}).get("candidate_pos", [])
+            options = candidates + [r["po_id"] for r in rows if r["po_id"] not in candidates]
+            if candidates:
+                st.warning(f"The invoice's PO number ({inv['po_number']}) was not found. The system suggests "
+                           f"**{', '.join(candidates)}**: same vendor, every item and amount fits. Confirm it, "
+                           "or pick another PO.", icon="🔎")
+            else:
+                st.warning(f"The invoice's PO number ({inv['po_number'] or 'none'}) was not found. "
+                           "Pick the PO it belongs to (the vendor's own POs are listed first).", icon="🔎")
             po_id = st.selectbox("PO", options, key=f"po_{inv['id']}") if options else None
         p = db.po(c, po_id) if po_id else None
     if not p:

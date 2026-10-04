@@ -1,0 +1,9 @@
+{
+  "matches": [
+    {
+      "invoice_line": 1,
+      "po_line_id": "UNMATCHED",
+      "reason": "Invoice line is an NVMe SSD storage device, while PO line is a monitor; these are different product categories."
+    }
+  ]
+}
