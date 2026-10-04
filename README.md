@@ -7,6 +7,46 @@ Takes a vendor invoice PDF, matches it to a purchase order, and decides **approv
 
 Design rationale: [`DESIGN.md`](DESIGN.md). Test set and expected outcomes: [`test_invoices/EXPECTED.md`](test_invoices/EXPECTED.md).
 
+## What it handles
+
+Every scenario below has a test invoice and is checked by the regression test (`tests/test_regression.py`). Expected outcomes per file: [`test_invoices/EXPECTED.md`](test_invoices/EXPECTED.md). Approve means **every** check passed; nothing is ever filed under the "closest" code.
+
+| Scenario | Outcome | Test file |
+|---|---|---|
+| **Matches the PO exactly** | Approve (A1) | `01` |
+| Small shortfall, within 2% and Rs 10,000 | Approve with a note (A2) | `e08` |
+| Shortfall explained by a printed discount | Approve (A3) | `e09` |
+| **Split invoicing**: part of a PO billed now, the rest later | Approve, PO partially invoiced | `02a` |
+| Quantity beyond what remains on the PO line | Send back (S5) | `02b` |
+| Price 2-7% over the PO | Human review (H1), PO on hold | `03a` |
+| **Another invoice on a held PO** | Waits, then reruns automatically after the decision | `03b` |
+| Price more than 7% over (text PDF) | Send back (S6) | `e06` |
+| Underbilled beyond 2% / Rs 10,000, no discount | Human review (H2) | `e10` |
+| **Scanned image or phone photo** | Human review (H3); read by Sonnet 5.5, never sent back | `04`, `u2` |
+| Byte-identical resend | Send back (S2) | `05` |
+| Invoice number already approved | Send back (S3) | `e02` |
+| Unchanged resend of a rejected invoice | Send back (S10) | shown by re-running 02b |
+| Near-duplicate number (one character off, same amount and date) | Human review (H9) | `e14` |
+| PO already fully invoiced | Send back (S4) | `e01` |
+| PO number not found, nothing fits | Send back (S9) | `e03` |
+| **PO number typo**: another PO of the vendor fits every line | Human review (H8), candidate held and preselected | `e19` |
+| PO written without its prefix ("P.O. No: 1011") | Matched on digits, same vendor only | `u5` |
+| A different vendor billing someone else's PO | Send back (S7) | `e04` |
+| Vendor name close but unclear | Human review (H6) | `e12` |
+| **Reviewer confirms the name as an alias** | Later invoices under that name pass | `e18` |
+| Bank details changed | Human review (H7): verify via a known contact | `e13` |
+| Items not on the PO | Send back (S8) | `e05` |
+| Required field missing (e.g. GSTIN) | Send back (S1), or human if the read is Low | `e07` |
+| Totals don't add up | Human review (H5) | `e11` |
+| Invoice dated before the PO or more than 3 months after it | Human review (H10) | `e15` |
+| Tax rate that isn't a valid GST rate | Human review (H11) | `e16` |
+| A field not verifiable in the PDF text (e.g. PO as a stamp image) | Human review (H12) | `e17` |
+| **Not an invoice** (quotation, proforma, credit note) | Human review (H14), never paid or sent back | `u6` |
+| **Billed in another currency** | Converted to INR at the invoice-date rate, checked, human approves (H16) | `u7` |
+| Anything unrecognised, or an unexpected error | Human review (H15), never left stuck | simulated in the regression test |
+| AI service unavailable | Human review (H13) | shown with an invalid key |
+| New layouts: real rupee signs, two pages, Indian GST columns | Read and checked like any other invoice | `u1`, `u3`, `u4` |
+
 ## Run it
 
 ```bash
@@ -25,9 +65,9 @@ The app has three pages:
 | **Human review** | POs on hold with an "on hold since" timer and how long each waiting invoice has waited, the waiting queue, and the review screen: the document beside what the AI read (with the exact text it read each field from), two separate indicators (*Reading confidence* vs *Match vs PO*), the findings, and approve or reject with a reason code and **required notes**. On approval the reviewer confirms which PO lines and quantities the invoice bills (prefilled with the system's matches, or chosen by hand when it could not match), and sees whether the PO will become partially or fully invoiced. On a close-name (H6) invoice the reviewer can tick **"confirm as an alias"**: later invoices under that name pass the vendor check. Learned aliases are listed with who added them and when, and can be removed. A decision releases the hold and reruns waiting invoices immediately. |
 | **Dashboard** | Invoices processed, auto-approval and exception rates, value approved, overbilling and duplicates caught, status and reason breakdowns, filterable history with a drill-down into any invoice's decision and audit trail, and PO billing progress. |
 
-Unseen invoices (`test_invoices/unseen/`, new layouts, a phone photo, a two-page invoice, a quotation) are in the test picker too; see `EXPECTED.md`.
+Unseen invoices (`test_invoices/unseen/`: new layouts, a phone photo, a two-page invoice, a quotation, a USD invoice) are in the test picker too; see `EXPECTED.md`.
 
-`python reset_demo.py --run` resets and processes the seven core test invoices from the command line; add `--extended` for the 18 edge-case invoices (one per remaining reason code, plus the learned-alias follow-up; see `test_invoices/EXPECTED.md`). In the app, use **Run core demo set**, then **Run edge-case set**.
+`python reset_demo.py --run` resets and processes the seven core test invoices from the command line; add `--extended` for the 19 edge-case invoices (one per remaining reason code, plus the learned-alias follow-up; see `test_invoices/EXPECTED.md`). In the app, use **Run core demo set**, then **Run edge-case set**.
 
 ### Regression test
 
@@ -97,9 +137,9 @@ engine/
   pdf_reader.py         file hash, text-vs-scan detection, page render
 data/                   config.json (every threshold) · vendors.json · pos_seed.json · llm_cache/
 scripts/generate_invoices.py   builds the test PDFs (3 layouts, reproducible bytes)
-test_invoices/          7 core test PDFs + EXPECTED.md; extended/ holds 18 edge-case PDFs; unseen/ holds 6
+test_invoices/          7 core test PDFs + EXPECTED.md; extended/ holds 19 edge-case PDFs; unseen/ holds 7
 reset_demo.py           restore a clean demo state (optionally run the test set)
-tests/test_regression.py   all 24 invoices vs EXPECTED.md, offline
+tests/test_regression.py   all 33 invoices vs EXPECTED.md, offline (55 checks)
 ```
 
 ## Choices worth knowing
