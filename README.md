@@ -1,6 +1,6 @@
 # Invoice Processor · Zamp PS-1
 
-**Live app:** [invoice-processing-devansh.streamlit.app](https://invoice-processing-devansh.streamlit.app/) · **Demo video (5 min):** [Loom](https://www.loom.com/share/26d51acf67f04c0cb3565bc78ddf17cd)
+**Live app:** [invoice-processing-devansh1.streamlit.app](https://invoice-processing-devansh1.streamlit.app/) · **Demo video (5 min):** [Loom](https://www.loom.com/share/26d51acf67f04c0cb3565bc78ddf17cd)
 
 Built with Python, Streamlit, SQLite and the Claude API. On the live app, click **Reset demo data** in the sidebar first, then **Run core demo set**. If the app has been idle it shows a sleep screen; it takes about 30 seconds to wake up.
 
