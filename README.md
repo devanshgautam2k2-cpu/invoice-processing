@@ -1,5 +1,9 @@
 # Invoice Processor · Zamp PS-1
 
+**Live app:** [invoice-processing-devansh.streamlit.app](https://invoice-processing-devansh.streamlit.app/) · **Demo video (5 min):** [Loom](https://www.loom.com/share/26d51acf67f04c0cb3565bc78ddf17cd)
+
+Built with Python, Streamlit, SQLite and the Claude API. On the live app, click **Reset demo data** in the sidebar first, then **Run core demo set**. If the app has been idle it shows a sleep screen; it takes about 30 seconds to wake up.
+
 Takes a vendor invoice PDF, matches it to a purchase order, and decides **approve**, **send back to the vendor**, or **hold for human review**, with every step explained and audited.
 
 > **The LLM reads, code decides, the human arbitrates.**
@@ -53,8 +57,9 @@ Every scenario below has a test invoice and is checked by the regression test (`
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+mkdir -p .streamlit
 echo 'ANTHROPIC_API_KEY = "sk-ant-..."' > .streamlit/secrets.toml
-python reset_demo.py          # clean state: 5 vendors, 6 open POs, no invoices
+python reset_demo.py          # clean state: 5 vendors, 13 open POs, no invoices
 streamlit run app.py
 ```
 
@@ -63,7 +68,7 @@ The app has three pages:
 | Page | What it shows |
 |---|---|
 | **Run invoices** | Upload PDFs or pick test files. A live view shows each of the nine stages turning green, amber or red as it runs, with every check logged underneath. |
-| **Human review** | POs on hold with an "on hold since" timer and how long each waiting invoice has waited, the waiting queue, and the review screen: the document beside what the AI read (with the exact text it read each field from), two separate indicators (*Reading confidence* vs *Match vs PO*), the findings, and approve or reject with a reason code and **required notes**. On approval the reviewer confirms which PO lines and quantities the invoice bills (prefilled with the system's matches, or chosen by hand when it could not match), and sees whether the PO will become partially or fully invoiced. On a close-name (H6) invoice the reviewer can tick **"confirm as an alias"**: later invoices under that name pass the vendor check. Learned aliases are listed with who added them and when, and can be removed. A decision releases the hold and reruns waiting invoices immediately. |
+| **Human review** | **Holds and queue:** POs on hold with an "on hold since" timer, and the invoices waiting behind them.<br>**Review screen:** the document beside what the AI read (with the text each field came from), *Reading confidence* and *Match vs PO* side by side, and the findings.<br>**Decision:** approve or reject with a reason code and required notes; on approval, confirm which PO lines and quantities are billed.<br>**Learning:** on a close vendor name (H6), tick "confirm as an alias" so later invoices under that name pass.<br>A decision releases the hold and reruns waiting invoices immediately. |
 | **Dashboard** | Invoices processed, auto-approval and exception rates, value approved, overbilling and duplicates caught, status and reason breakdowns, filterable history with a drill-down into any invoice's decision and audit trail, and PO billing progress. |
 
 Unseen invoices (`test_invoices/unseen/`: new layouts, a phone photo, a two-page invoice, a quotation, a USD invoice) are in the test picker too; see `EXPECTED.md`.
@@ -145,7 +150,7 @@ tests/test_regression.py   all 34 invoices vs EXPECTED.md, offline (56 checks)
 
 ## Choices worth knowing
 
-- **Models:** Claude Haiku 4.5 reads text PDFs (every key field is then verified against the PDF text), pairs lines and writes notes. **Claude Sonnet 5.5 reads image-only PDFs** (scans, phone photos): in testing Haiku misread a GSTIN on a scan that Sonnet and Opus 5.5 read correctly. Swap models in `config.json`.
+- **Models** (exact strings in `data/config.json`: `claude-haiku-4-5`, `claude-sonnet-5-5`): Claude Haiku 4.5 reads text PDFs (every key field is then verified against the PDF text), pairs lines and writes notes. **Claude Sonnet 5.5 reads image-only PDFs** (scans, phone photos): in testing Haiku misread a GSTIN on a scan that Sonnet and Opus 5.5 read correctly. Swap models in `config.json`.
 - **Structured outputs** (`output_config.format` JSON schema) for every call, so the response always parses. The line matcher's `po_line_id` is an enum of the PO's own line IDs plus `UNMATCHED`, so it cannot invent a match.
 - **Cache keyed by input hash** (`data/llm_cache/`, committed). The rehearsed demo gives identical results and works even if the API is slow or down. Delete the folder to force fresh reads.
 - **Graceful degradation:** if the AI cannot be reached, the invoice goes to human review (H13) with a clear message. The app never crashes on it.
